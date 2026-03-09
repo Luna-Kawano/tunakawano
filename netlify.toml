@@ -1,0 +1,14 @@
+# netlify.toml
+# ──────────────────────────────────────────────────────────────
+# Drop this file in the ROOT of your GitHub repo alongside index.html
+# It tells Netlify where your serverless functions live.
+# ──────────────────────────────────────────────────────────────
+
+[build]
+  # No build command needed — it's a static site
+  publish = "."
+  functions = "netlify/functions"
+
+[dev]
+  # Local dev server port (run `netlify dev` to test functions locally)
+  port = 8888
