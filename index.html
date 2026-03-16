@@ -53,7 +53,7 @@
 
     :root {
       --black: #111;
-      --white: #f5f4f0;
+      --white: #ffffff;
       --mid: #888;
       --border: #ccc;
     }
@@ -269,7 +269,7 @@
     p:last-child { margin-bottom: 0; }
 
     /* ---------- HERO ---------- */
-    #home { padding: 72px 0; }
+    #home { padding: 72px 0 24px; }
 
     .hero-tagline {
       font-family: 'Courier', monospace;
@@ -280,6 +280,36 @@
     }
 
     .hero-sub { color: var(--mid); font-size: 14px; }
+
+    .story-btn {
+      margin-top: 20px;
+      font-family: 'Courier', monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      background: transparent;
+      color: var(--black);
+      border: 1px solid var(--black);
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-block;
+    }
+
+    .story-btn:hover { background: var(--black); color: var(--white); }
+    .story-btn.open { background: var(--black); color: var(--white); }
+
+    .story-body {
+      overflow: hidden;
+      animation: storyFadeIn 0.3s ease;
+    }
+
+    @keyframes storyFadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+
 
     /* ---------- ABOUT ---------- */
     /* heading + listen button sit above the float layout */
@@ -300,8 +330,8 @@
       gap: 10px;
       margin-bottom: 16px;
       padding: 10px 14px;
-      border: 1px solid #aaa;
-      background: #eceae5;
+      border: 1px solid var(--border);
+      background: var(--white);
       font-size: 11px;
       color: var(--mid);
       font-family: 'Courier', monospace;
@@ -1087,17 +1117,21 @@
   <main>
     <div class="container">
 
-      <!-- HOME -->
+      <!-- HOME + ABOUT (merged so story expands inline with no gap) -->
       <section id="home">
         <p class="hero-tagline">I bonked my head + now I'm an artist.</p>
         <p class="hero-sub">Prints, stickers, paintings, etc — designed by Tuna.</p>
+        <button class="story-btn" id="storyBtn" onclick="toggleStory()">Read my story ↓</button>
       </section>
 
       <!-- ABOUT -->
-      <section id="about">
+      <section id="about" style="padding-top:0;">
         <div class="about-layout">
 
-          <!-- heading + listen button — full width above the photo/text grid -->
+          <!-- all about content hidden until story is opened -->
+          <div class="story-body" id="storyBody" style="display:none;">
+
+          <!-- heading + listen button -->
           <div class="about-heading">
             <h2>Hi, I'm Tuna.</h2>
             <button class="listen-btn" id="listenBtn" onclick="toggleAudio(); event.stopPropagation();">
@@ -1142,6 +1176,11 @@
             </div>
           </div>
 
+          <!-- close button at bottom of story so it's always reachable -->
+          <button class="story-btn story-btn-close" onclick="toggleStory()" style="margin-top:24px;">Hide my story ↑</button>
+
+          </div><!-- /storyBody -->
+
         </div>
       </section>
 
@@ -1174,9 +1213,13 @@
         <div class="contact-links">
           <a href="mailto:kawano.luna@gmail.com">email →</a>
           <a href="https://instagram.com/tuna_kawano" target="_blank">Instagram →</a>
+          <a href="https://www.etsy.com/shop/TunaKawano" target="_blank">Etsy →</a>
         </div>
-        <p style="margin-top:24px; font-size:12px; color:#888; line-height:1.6;">
-          <strong>Returns &amp; refunds:</strong> Every order is packed with care and love! Since each piece is made to order or hand-packed just for you, I'm not able to accept returns or exchanges. That said, if something arrives damaged or isn't quite right, please reach out within 7 days with a photo and I'll always do my best to make it right 🫶
+        <p style="margin-top:16px; font-size:13px; color:#888; line-height:1.6;">
+          This website was built by yours truly and hosted by GitHub to lower costs on my end (and yours)😊 I am also on Etsy if you prefer to buy there!
+        </p>
+        <p style="margin-top:16px; font-size:12px; color:#888; line-height:1.6;">
+          <strong>Returns &amp; refunds:</strong> Since each piece is made to order or hand-packed just for you, I'm not able to accept returns or exchanges based on buyer error (wrong item/size ordered). That said, if something arrives damaged or isn't quite right, please reach out within 7 days with a photo and I will do my best to make it right🫶
         </p>
       </section>
 
@@ -1188,9 +1231,6 @@
       <div class="footer-inner">
         <span>© 2026 Tuna Kawano</span>
         <span style="font-size:11px;color:var(--mid);text-align:center;">made with love in Banff, Canada 🏔️</span>
-        <!--
-          FOOTER LOGO: upload your SVG as images/logo-footer.svg to GitHub.
-        -->
         <img
           src="images/logo-footer.svg"
           alt="Tuna Kawano"
@@ -1198,6 +1238,7 @@
           onerror="this.style.display='none';"
         />
       </div>
+
     </div>
   </footer>
 </div>
@@ -1932,13 +1973,7 @@
           <span class="product-price">${priceLabel}</span>
           <span class="product-stock">${!hasVariants(p) && p.stock !== null ? p.stock + ' left' : ''}</span>
         </div>
-        ${p.commission
-          ? `<button class="add-btn" onclick="event.stopPropagation(); navTo('contact')">Get in touch →</button>`
-          : `<button class="add-btn ${inCartTotal > 0 ? 'added' : ''}"
-          onclick="event.stopPropagation(); openModal('${p.id}')"
-          ${soldOut ? 'disabled' : ''}>
-          ${soldOut ? 'Sold out' : inCartTotal > 0 ? 'In cart (' + inCartTotal + ')' : hasVariants(p) ? 'Choose size' : 'Add to cart'}
-        </button>`}
+        ${p.commission ? `<button class="add-btn" onclick="event.stopPropagation(); navTo('contact')">Get in touch →</button>` : ''}
       </div>
     `;
   }
@@ -2228,6 +2263,30 @@
     // DELETE THIS ALERT once Stripe is connected:
     alert('Stripe not connected yet.\n\nSee netlify/functions/create-checkout.js for setup instructions.');
   }
+
+  // ============================================================
+  // STORY TOGGLE (hero → about body)
+  // ============================================================
+  function toggleStory() {
+    const body = document.getElementById('storyBody');
+    const btn  = document.getElementById('storyBtn');
+    const open = body.style.display === 'none' || body.style.display === '';
+    body.style.display = open ? 'block' : 'none';
+    // Top button: hide when story is open (bottom button takes over)
+    btn.style.display = open ? 'none' : 'inline-block';
+    if (open) body.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // Close story when clicking outside the about section
+  document.addEventListener('click', function(e) {
+    const storyBody = document.getElementById('storyBody');
+    if (!storyBody || storyBody.style.display === 'none') return;
+    if (!e.target.closest('#about') && !e.target.closest('#home')) {
+      storyBody.style.display = 'none';
+      const btn = document.getElementById('storyBtn');
+      if (btn) { btn.style.display = 'inline-block'; }
+    }
+  });
 
   // ============================================================
   // AUDIO PLAYER (about section)
