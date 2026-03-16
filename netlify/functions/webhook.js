@@ -47,7 +47,7 @@ function makeTransporter() {
 // FORMAT ORDER EMAIL
 // Builds a clear plain-text summary of the order for you.
 // ============================================================
-function formatOrderEmail(session, orderItems, printfulOrderId) {
+function formatOrderEmail(session, orderItems, printfulOrderId, optedIn) {
   const customer  = session.customer_details;
   const shipping  = session.shipping_details;
   const addr      = shipping?.address;
@@ -80,9 +80,10 @@ New order received on tunakawano.com!
 
 ─────────────────────────────
 CUSTOMER
-  Name:    ${customer?.name || '—'}
-  Email:   ${customer?.email || '—'}
-  Ship to: ${addrLine}
+  Name:      ${customer?.name || '—'}
+  Email:     ${customer?.email || '—'}
+  Ship to:   ${addrLine}
+  Marketing: ${optedIn ? '✅ Opted in — added to Google Sheet' : '❌ No opt-in'}
 ─────────────────────────────
 ORDER TOTAL: $${totalCAD} CAD
 Stripe session: ${session.id}
@@ -97,9 +98,44 @@ View in Stripe: https://dashboard.stripe.com/payments/${session.payment_intent}
 }
 
 // ============================================================
+// LOG TO GOOGLE SHEETS
+// ─────────────────────────────────────────────────────────────
+// Sends customer data to your Google Apps Script webhook.
+// Only fires if GOOGLE_SHEETS_WEBHOOK env var is set.
+// Safe to fail — won't break the order flow if it errors.
+// ============================================================
+async function logToGoogleSheets(session, orderItems, optedIn) {
+  const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK;
+  if (!webhookUrl) return; // silently skip if not configured
+
+  const customer   = session.customer_details;
+  const totalCAD   = '$' + (session.amount_total / 100).toFixed(2);
+  const itemsSummary = orderItems
+    .map(i => `${i.productId}${i.size ? ` (${i.size})` : ''} × ${i.quantity}`)
+    .join(', ');
+
+  try {
+    await fetch(webhookUrl, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email:      customer?.email || '',
+        name:       customer?.name  || '',
+        optedIn:    !!optedIn,
+        orderTotal: totalCAD,
+        items:      itemsSummary,
+      }),
+    });
+    console.log('Google Sheets log sent — opted in:', optedIn);
+  } catch (err) {
+    console.error('Google Sheets log failed (non-fatal):', err.message);
+  }
+}
+
+// ============================================================
 // SEND ORDER NOTIFICATION
 // ============================================================
-async function sendOrderEmail(session, orderItems, printfulOrderId) {
+async function sendOrderEmail(session, orderItems, printfulOrderId, optedIn) {
   const notify = process.env.NOTIFY_EMAIL;
   const pass   = process.env.NOTIFY_EMAIL_PASS;
 
@@ -110,7 +146,7 @@ async function sendOrderEmail(session, orderItems, printfulOrderId) {
 
   try {
     const transporter = makeTransporter();
-    const { subject, text } = formatOrderEmail(session, orderItems, printfulOrderId);
+    const { subject, text } = formatOrderEmail(session, orderItems, printfulOrderId, optedIn);
     await transporter.sendMail({
       from:    `"Tuna Kawano Shop" <${notify}>`,
       to:      notify,
@@ -220,6 +256,8 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: 'Metadata parse error' };
   }
 
+  const optedIn = session.metadata?.marketing_opt_in === 'true';
+
   const printfulItems = orderItems.filter(
     i => i.fulfillment === 'printful' && i.printfulVariantId
   );
@@ -240,7 +278,10 @@ exports.handler = async (event) => {
   }
 
   // ── Send order notification email to you ─────────────────
-  await sendOrderEmail(session, orderItems, printfulOrderId);
+  await sendOrderEmail(session, orderItems, printfulOrderId, optedIn);
+
+  // ── Log to Google Sheets (all orders; marks opt-in status) ─
+  await logToGoogleSheets(session, orderItems, optedIn);
 
   return {
     statusCode: 200,
