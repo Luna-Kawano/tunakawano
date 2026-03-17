@@ -9,7 +9,7 @@
   <link rel="canonical" href="https://tunakawano.com/" />
 
   <!-- Open Graph (controls how your link looks when shared on social / iMessage) -->
-  <meta property="og:title"       content="Tuna Kawano" />
+  <meta property="og:title"       content="Tuna Kawano — Art Prints & Stickers" />
   <meta property="og:description" content="Original art prints, stickers, and one-of-a-kind work by a self-taught artist from Banff, Canada." />
   <meta property="og:type"        content="website" />
   <meta property="og:url"         content="https://tunakawano.com/" />
@@ -43,9 +43,8 @@
   </script>
 
   <!-- Favicon -->
-  <!-- FAVICON: upload your icon as images/favicon.png to GitHub -->
-  <!-- 32×32px or 64×64px PNG works best                        -->
-  <link rel="icon" type="image/svg" href="images/favicon.svg" />
+  <!-- FAVICON: upload your SVG as images/favicon.svg to GitHub -->
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
   <link rel="apple-touch-icon" href="images/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <style>
@@ -487,59 +486,82 @@
       aspect-ratio: 1;
       background: #e8e8e8;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
       font-size: 12px;
       color: var(--mid);
       border-bottom: 1px solid var(--border);
       overflow: hidden;
-      position: relative;
     }
 
     .gallery-modal-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .gallery-modal-img .img-label { position: absolute; }
     .gallery-modal-img img.loaded + .img-label { display: none; }
 
-    .img-nav-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255,255,255,0.85);
-      border: 1px solid var(--border);
-      width: 32px; height: 32px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      font-size: 16px;
-      z-index: 3;
-      transition: background 0.15s;
-      user-select: none;
+    /* ---------- SCROLL IMAGE CAROUSEL ---------- */
+    .img-scroll-strip {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      min-height: 260px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
     }
-    .img-nav-arrow:hover { background: rgba(255,255,255,1); }
-    .img-nav-arrow.prev { left: 8px; }
-    .img-nav-arrow.next { right: 8px; }
+    .img-scroll-strip::-webkit-scrollbar { display: none; }
+
+    .img-scroll-slide {
+      flex: 0 0 100%;
+      width: 100%;
+      height: 100%;
+      min-height: 260px;
+      scroll-snap-align: start;
+      position: relative;
+      background: #e8e8e8;
+    }
+
+    .img-scroll-slide img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .img-scroll-slide img.loaded { opacity: 1; }
 
     .img-nav-dots {
-      position: absolute;
-      bottom: 8px;
-      left: 0; right: 0;
       display: flex;
+      align-items: center;
       justify-content: center;
       gap: 5px;
-      z-index: 3;
+      padding: 8px 0 2px;
     }
 
     .img-nav-dot {
-      width: 7px; height: 7px;
+      width: 6px; height: 6px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.5);
-      border: 1px solid rgba(0,0,0,0.3);
+      background: var(--border);
+      border: 1px solid var(--border);
       cursor: pointer;
-      transition: background 0.15s;
+      transition: background 0.15s, border-color 0.15s;
+      flex-shrink: 0;
     }
 
     .img-nav-dot.active { background: var(--black); border-color: var(--black); }
 
-    /* keep old gallery-modal-thumbs hidden — replaced by arrows/dots */
+    .img-nav-hint {
+      font-size: 11px;
+      color: var(--mid);
+      margin-left: 4px;
+      user-select: none;
+      transition: opacity 0.2s;
+    }
+
+    /* keep old gallery-modal-thumbs hidden */
     .gallery-modal-thumbs { display: none; }
 
     .gallery-modal-info { padding: 24px; display: flex; flex-direction: column; gap: 8px; }
@@ -743,19 +765,17 @@
     .modal-img {
       background: #e8e8e8;
       display: flex;
-      align-items: stretch;
-      justify-content: center;
+      flex-direction: column;
       font-size: 11px;
       color: var(--mid);
       border-right: 1px solid var(--border);
-      overflow: hidden;
+      overflow: visible;
       position: relative;
       min-height: 260px;
     }
 
-    .modal-img img { width: 100%; height: 100%; object-fit: cover; display: block; position: absolute; inset: 0; }
-    .modal-img .img-label { position: absolute; }
-    .modal-img img.loaded + .img-label { display: none; }
+    .modal-img .img-scroll-strip { flex: 1; min-height: 260px; }
+    .modal-img .img-nav-dots { background: var(--white); border-top: 1px solid var(--border); padding: 6px 0; }
 
     .modal-info { padding: 16px; display: flex; flex-direction: column; gap: 6px; justify-content: space-between; }
     .modal-name { font-family: 'Courier', monospace; font-size: 0.95rem; font-weight: 700; line-height: 1.3; }
@@ -816,17 +836,14 @@
     .discount-tier-tiers { opacity: 0.85; }
     .modal-discount-tier { margin-bottom: 0; }
     /* ---------- MODAL IMAGE GALLERY ---------- */
+    /* modal-img-wrap now just a flex container for the scroll strip + dots */
     .modal-img-wrap {
-      position: relative;
+      display: flex;
+      flex-direction: column;
       width: 100%;
       height: 100%;
-      min-height: 260px;
     }
-    .modal-img-main {
-      width: 100%; height: 100%; object-fit: cover; display: block; position: absolute; inset: 0;
-    }
-    /* product modal image nav uses shared .img-nav-arrow / .img-nav-dot classes */
-    .modal-img-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--mid); }
+    .modal-img-placeholder { display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--mid); min-height: 260px; }
 
 
     @media (max-width: 480px) {
@@ -1019,50 +1036,45 @@
       color: var(--mid);
     }
 
+    .review-card {
+      border: 1px solid var(--border);
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      gap: 0 16px;
+    }
+
+    .review-card-left {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
     .review-img {
-      width: 80px;
-      height: 80px;
+      grid-column: 2;
+      grid-row: 1 / 3;
+      width: 90px;
+      height: 90px;
       object-fit: cover;
       border: 1px solid var(--border);
       flex-shrink: 0;
-      background: #e8e8e8;
+      align-self: start;
     }
 
-    .review-header {
+    .review-meta {
       display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .review-header-text {
-      flex: 1;
-    }
-
-    .review-card {
-      border: 1px solid var(--border);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .review-stars {
       color: #b8860b;
       font-size: 13px;
       letter-spacing: 1px;
-    }
-
-    .review-text {
-      font-size: 13px;
-      line-height: 1.6;
-      flex: 1;
-      font-style: italic;
-    }
-
-    .review-author-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
     .review-author {
@@ -1075,8 +1087,13 @@
     .review-item {
       font-size: 11px;
       color: var(--mid);
-      border-top: 1px solid var(--border);
-      padding-top: 6px;
+    }
+
+    .review-text {
+      font-size: 13px;
+      line-height: 1.6;
+      font-style: italic;
+      color: var(--black);
       margin-top: 2px;
     }
 
@@ -1089,22 +1106,13 @@
 
     .footer-inner {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      text-align: center;
-    }
-
-    .footer-top {
-      display: flex;
       justify-content: space-between;
       align-items: center;
-      width: 100%;
       flex-wrap: wrap;
       gap: 8px;
     }
 
-    .footer-logo { height: 64px; width: auto; display: block; opacity: 0.3; }
+    .footer-logo { height: 36px; width: auto; display: block; opacity: 0.35; }
 
     /* ---------- RESPONSIVE ---------- */
     @media (max-width: 600px) {
@@ -1136,9 +1144,7 @@
       <button class="close-btn" onclick="closeGalleryModal()">×</button>
     </div>
     <div class="gallery-modal-img" id="galleryModalImgBox">
-      <img id="galleryModalImg" src="" alt="" />
-      <span class="img-label" id="galleryModalImgLabel">[ img ]</span>
-      <div class="gallery-modal-thumbs" id="galleryModalThumbs"></div>
+      <span class="img-label" id="galleryModalImgLabel" style="display:none;">[ img ]</span>
     </div>
     <div class="gallery-modal-info">
       <div class="gallery-modal-medium" id="galleryModalMedium"></div>
@@ -1158,11 +1164,7 @@
     </div>
     <div class="modal-body">
       <div class="modal-img" id="modalImgBox">
-        <div class="modal-img-wrap">
-          <img id="modalImg" class="modal-img-main" src="" alt="" />
-          <span class="modal-img-placeholder" id="modalImgLabel">[ img ]</span>
-          <div class="modal-thumbnails" id="modalThumbnails"></div>
-        </div>
+        <span class="modal-img-placeholder" id="modalImgLabel" style="display:none;">[ img ]</span>
       </div>
       <div class="modal-info">
 
@@ -1392,10 +1394,8 @@
   <footer>
     <div class="container">
       <div class="footer-inner">
-        <div class="footer-top">
-          <span>© 2026 Tuna Kawano</span>
-          <span style="font-size:11px;color:var(--mid);">Made with love in Banff, Canada</span>
-        </div>
+        <span>© 2026 Tuna Kawano</span>
+        <span style="font-size:11px;color:var(--mid);text-align:center;">Made with love in Banff, Canada</span>
         <img
           src="images/logo-footer.svg"
           alt="Tuna Kawano"
@@ -1843,17 +1843,15 @@
     if (!grid) return;
     grid.innerHTML = REVIEWS.map(r => `
       <div class="review-card">
-        <div class="review-header">
-          ${r.img ? `<img class="review-img" src="images/${r.img}" alt="${r.item}" onerror="this.style.display='none'" />` : ''}
-          <div class="review-header-text">
-            <div class="review-author-row">
-              <span class="review-author">${r.author}</span>
-              <span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</span>
-            </div>
-            <div class="review-item">${r.item}</div>
+        <div class="review-card-left">
+          <div class="review-meta">
+            <span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</span>
+            <span class="review-author">${r.author}</span>
           </div>
+          <div class="review-item">${r.item}</div>
+          <div class="review-text">"${r.text}"</div>
         </div>
-        <div class="review-text">"${r.text}"</div>
+        ${r.img ? `<img class="review-img" src="images/${r.img}" alt="${r.item}" onerror="this.style.display='none'" />` : ''}
       </div>
     `).join('');
   }
@@ -2071,66 +2069,107 @@
   // ============================================================
   // ── Shared image carousel builder ───────────────────────────
   // Builds arrows + dots inside any container, returns a setImg(index) fn
-  function buildImgCarousel(container, imgEl, imgList) {
-    // Remove old nav elements
-    container.querySelectorAll('.img-nav-arrow, .img-nav-dots').forEach(e => e.remove());
-    let current = 0;
+  // ── Scroll-based image carousel ─────────────────────────────
+  // Builds a horizontal scroll strip with snap + dots indicator.
+  // Returns goTo(index) to jump to a specific image.
+  function buildScrollCarousel(container, imgList, startIndex) {
+    startIndex = startIndex || 0;
+    // Clear old carousel content
+    container.querySelectorAll('.img-scroll-strip, .img-nav-dots').forEach(e => e.remove());
 
-    function goTo(i) {
-      current = (i + imgList.length) % imgList.length;
-      imgEl.classList.remove('loaded');
-      imgEl.src = 'images/' + imgList[current];
-      imgEl.onload = () => imgEl.classList.add('loaded');
-      imgEl.onerror = () => {};
-      container.querySelectorAll('.img-nav-dot').forEach((d, idx) => d.classList.toggle('active', idx === current));
-    }
+    if (imgList.length === 0) return () => {};
 
+    // Build scroll strip
+    const strip = document.createElement('div');
+    strip.className = 'img-scroll-strip';
+
+    const slides = imgList.map((src, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'img-scroll-slide';
+      const img = document.createElement('img');
+      img.alt = '';
+      img.onload = () => img.classList.add('loaded');
+      img.onerror = () => img.style.display = 'none';
+      // Load first image + neighbours immediately, defer others
+      if (Math.abs(i - startIndex) <= 1) img.src = 'images/' + src;
+      else img.dataset.src = src; // lazy
+      slide.appendChild(img);
+      return slide;
+    });
+
+    slides.forEach(s => strip.appendChild(s));
+    container.appendChild(strip);
+
+    // Dots + hint (only if multiple images)
+    let dotsEl = null;
+    let hintEl = null;
     if (imgList.length > 1) {
-      const prev = document.createElement('button');
-      prev.className = 'img-nav-arrow prev';
-      prev.innerHTML = '‹';
-      prev.onclick = (e) => { e.stopPropagation(); goTo(current - 1); };
-
-      const next = document.createElement('button');
-      next.className = 'img-nav-arrow next';
-      next.innerHTML = '›';
-      next.onclick = (e) => { e.stopPropagation(); goTo(current + 1); };
-
-      const dotsEl = document.createElement('div');
+      dotsEl = document.createElement('div');
       dotsEl.className = 'img-nav-dots';
       imgList.forEach((_, i) => {
         const d = document.createElement('span');
-        d.className = 'img-nav-dot' + (i === 0 ? ' active' : '');
+        d.className = 'img-nav-dot' + (i === startIndex ? ' active' : '');
         d.onclick = (e) => { e.stopPropagation(); goTo(i); };
         dotsEl.appendChild(d);
       });
-
-      container.appendChild(prev);
-      container.appendChild(next);
+      hintEl = document.createElement('span');
+      hintEl.className = 'img-nav-hint';
+      hintEl.textContent = '›';
+      dotsEl.appendChild(hintEl);
       container.appendChild(dotsEl);
     }
 
+    function updateDots(i) {
+      if (!dotsEl) return;
+      dotsEl.querySelectorAll('.img-nav-dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
+      // Hide hint arrow when on last image
+      if (hintEl) hintEl.style.opacity = (i >= imgList.length - 1) ? '0' : '1';
+    }
+
+    function goTo(i) {
+      i = Math.max(0, Math.min(imgList.length - 1, i));
+      // Lazy load adjacent images
+      [-1, 0, 1].forEach(offset => {
+        const idx = i + offset;
+        if (idx >= 0 && idx < imgList.length) {
+          const img = slides[idx].querySelector('img');
+          if (!img.src && img.dataset.src) img.src = img.dataset.src;
+        }
+      });
+      strip.scrollTo({ left: i * strip.offsetWidth, behavior: i === 0 ? 'instant' : 'smooth' });
+      updateDots(i);
+    }
+
+    // Sync dots on manual scroll
+    let scrollTimer;
+    strip.addEventListener('scroll', () => {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        const i = Math.round(strip.scrollLeft / strip.offsetWidth);
+        updateDots(i);
+      }, 80);
+    }, { passive: true });
+
+    // Jump to start image
+    goTo(startIndex);
     return goTo;
   }
 
   function openGalleryModal(index) {
-    const list   = (document.getElementById('galleryPage').classList.contains('active')) ? GALLERY_FULL : GALLERY;
-    const item   = list[index];
+    const list = (document.getElementById('galleryPage').classList.contains('active')) ? GALLERY_FULL : GALLERY;
+    const item = list[index];
     if (!item) return;
     document.getElementById('galleryModalTitle').textContent  = item.title;
     document.getElementById('galleryModalMedium').textContent = item.medium;
     document.getElementById('galleryModalDesc').textContent   = item.desc;
 
-    const imgEl   = document.getElementById('galleryModalImg');
-    const box     = document.getElementById('galleryModalImgBox');
-    const imgs    = item.imgs ? [...item.imgs] : [item.img];
+    const box  = document.getElementById('galleryModalImgBox');
+    const imgs = item.imgs ? [...item.imgs] : [item.img];
+    // Start on the image that was displayed in the grid
+    const startIdx = Math.max(0, imgs.indexOf(item.img));
 
-    imgEl.classList.remove('loaded');
-    imgEl.style.display = '';
     document.getElementById('galleryModalImgLabel').style.display = 'none';
-
-    const goTo = buildImgCarousel(box, imgEl, imgs);
-    goTo(0); // start on first image
+    buildScrollCarousel(box, imgs, startIdx);
 
     document.getElementById('galleryModalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -2363,20 +2402,16 @@
     document.getElementById('modalTitle').textContent = p.name;
     document.getElementById('modalDesc').textContent  = p.desc || '';
 
-    // Build image carousel using shared helper
-    const imgEl   = document.getElementById('modalImg');
+    // Build scroll image carousel
     const labelEl = document.getElementById('modalImgLabel');
     const imgWrap = document.getElementById('modalImgBox');
     const allImgs = p.imgs ? p.imgs : (p.img ? [p.img] : []);
 
     labelEl.style.display = 'none';
     if (allImgs.length > 0) {
-      imgEl.style.display = '';
-      buildImgCarousel(imgWrap, imgEl, allImgs)(0);
+      buildScrollCarousel(imgWrap, allImgs, 0);
     } else {
-      imgEl.style.display = 'none';
-      labelEl.style.display = '';
-      labelEl.textContent = '[ img ]';
+      imgWrap.innerHTML = '<div class="modal-img-placeholder">[ img ]</div>';
     }
 
     // Variant dropdown
