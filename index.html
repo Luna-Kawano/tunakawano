@@ -45,7 +45,7 @@
   <!-- Favicon -->
   <!-- FAVICON: upload your icon as images/favicon.png to GitHub -->
   <!-- 32×32px or 64×64px PNG works best                        -->
-  <link rel="icon" type="image/png" href="images/favicon.svg" />
+  <link rel="icon" type="image/svg" href="images/favicon.svg" />
   <link rel="apple-touch-icon" href="images/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <style>
@@ -500,29 +500,47 @@
     .gallery-modal-img .img-label { position: absolute; }
     .gallery-modal-img img.loaded + .img-label { display: none; }
 
-    .gallery-modal-thumbs {
+    .img-nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.85);
+      border: 1px solid var(--border);
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      z-index: 3;
+      transition: background 0.15s;
+      user-select: none;
+    }
+    .img-nav-arrow:hover { background: rgba(255,255,255,1); }
+    .img-nav-arrow.prev { left: 8px; }
+    .img-nav-arrow.next { right: 8px; }
+
+    .img-nav-dots {
       position: absolute;
       bottom: 8px;
       left: 0; right: 0;
       display: flex;
       justify-content: center;
       gap: 5px;
-      z-index: 2;
-      padding: 0 8px;
+      z-index: 3;
     }
 
-    .gallery-modal-thumb {
-      width: 36px;
-      height: 36px;
-      object-fit: cover;
-      border: 2px solid transparent;
+    .img-nav-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      border: 1px solid rgba(0,0,0,0.3);
       cursor: pointer;
-      opacity: 0.7;
-      transition: opacity 0.15s, border-color 0.15s;
-      background: #e8e8e8;
+      transition: background 0.15s;
     }
 
-    .gallery-modal-thumb.active, .gallery-modal-thumb:hover { opacity: 1; border-color: var(--black); }
+    .img-nav-dot.active { background: var(--black); border-color: var(--black); }
+
+    /* keep old gallery-modal-thumbs hidden — replaced by arrows/dots */
+    .gallery-modal-thumbs { display: none; }
 
     .gallery-modal-info { padding: 24px; display: flex; flex-direction: column; gap: 8px; }
     .gallery-modal-title { font-family: 'Courier', monospace; font-weight: 700; font-size: 1rem; }
@@ -807,27 +825,7 @@
     .modal-img-main {
       width: 100%; height: 100%; object-fit: cover; display: block; position: absolute; inset: 0;
     }
-    .modal-thumbnails {
-      position: absolute;
-      bottom: 8px;
-      left: 0; right: 0;
-      display: flex;
-      justify-content: center;
-      gap: 5px;
-      z-index: 2;
-      padding: 0 8px;
-    }
-    .modal-thumb {
-      width: 36px;
-      height: 36px;
-      object-fit: cover;
-      border: 2px solid transparent;
-      cursor: pointer;
-      opacity: 0.7;
-      transition: opacity 0.15s, border-color 0.15s;
-      background: #e8e8e8;
-    }
-    .modal-thumb.active, .modal-thumb:hover { opacity: 1; border-color: var(--black); }
+    /* product modal image nav uses shared .img-nav-arrow / .img-nav-dot classes */
     .modal-img-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--mid); }
 
 
@@ -1270,7 +1268,7 @@
 
       <!-- HOME + ABOUT (merged so story expands inline with no gap) -->
       <section id="home">
-        <p class="hero-tagline">I bonked my head & now I'm an artist.</p>
+        <p class="hero-tagline">I bonked my head + now I'm an artist.</p>
         <p class="hero-sub">Prints, stickers, paintings, etc — designed by Tuna.</p>
         <button class="story-btn" id="storyBtn" onclick="toggleStory()">Read my story ↓</button>
       </section>
@@ -1450,93 +1448,54 @@
   // Home page always shows exactly the first 6.
   // ============================================================
   const GALLERY = [
-    // ── HOME PAGE PREVIEW: first 6 items appear on home page ──
-    { title: "Laputa - Castle in the Sky - 2", medium: "Acrylic & Fineliner",   desc: "From the iconic movie I've watched a thousand times. A super fun piece I drew as a part of a Ghibli paint night. Available as a print!", img: "gallery-laputa-2.jpg" },
-    { title: "Little Friend - 2",              medium: "Acrylic on Canvas",      desc: "This commission started with my client and me on a very important mission—finding the cutest bear cub photo. Then I paired it with wildflowers from my summer hikes, and voilà! A piece we're both very happy with. \"Little Friend\" is your little friend at home reminding you to slow down and lay in the flowers.", img: "gallery-little-friend-2.jpg" },
-    { title: "Fabio - 2",                      medium: "Acrylic on Canvas",      desc: "A fabulous orange cat I had the pleasure to paint as my first commission piece! From the customer: \"How did you know! Blue is his favourite colour.\"", img: "gallery-cat-fabio-2.jpg" },
-    { title: "Weeeee",                         medium: "Oil Pastel on Paper",    desc: "Just two friends going weeeeee. Quick sketch from my daily oil pastel endeavours.", img: "gallery-penguins.jpg" },
-    { title: "Basic Trio",                     medium: "Oil Pastel on Paper",    desc: "Everyone loves a three fish drawing so I had to join the bandwagon. Quick sketch from my daily oil pastel endeavours.", img: "gallery-three-fish.jpg" },
-    { title: "Fly Away",                       medium: "Fineliner on Paper",     desc: "A vision I had with some inspo from various pinterest images and a touch of ghibli-ness.", img: "gallery-robo-orca.jpg" },
-    // ── REST OF GALLERY ────────────────────────────────────────
-    { title: "Laputa - Castle in the Sky - 1", medium: "Acrylic & Fineliner",   desc: "From the iconic movie I've watched a thousand times. A super fun piece I drew as a part of a Ghibli paint night. Available as a print!", img: "gallery-laputa-1.jpg" },
-    { title: "Little Friend - 1",              medium: "Acrylic on Canvas",      desc: "This commission started with my client and me on a very important mission—finding the cutest bear cub photo. Then I paired it with wildflowers from my summer hikes, and voilà! A piece we're both very happy with. \"Little Friend\" is your little friend at home reminding you to slow down and lay in the flowers.", img: "gallery-little-friend-1.jpg" },
-    { title: "Jack - 1",                       medium: "Oil Pastel on Canvas",   desc: "Jack was the cutest cat who would follow you around the house and meow until he got some pets. I drew this piece as a gift to my partner's family when Jack passed away.", img: "gallery-cat-jack-1.jpg" },
-    { title: "Jack - 2",                       medium: "Oil Pastel on Canvas",   desc: "Jack was the cutest cat who would follow you around the house and meow until he got some pets. I drew this piece as a gift to my partner's family when Jack passed away.", img: "gallery-cat-jack-2.jpg" },
-    { title: "Fabio - 1",                      medium: "Acrylic on Canvas",      desc: "A fabulous orange cat I had the pleasure to paint as my first commission piece! From the customer: \"How did you know! Blue is his favourite colour.\"", img: "gallery-cat-fabio-1.jpg" },
-    { title: "Nikki - 1",                      medium: "Acrylic on Canvas",      desc: "A gorgeous girl I painted for commission. She is very photogenic and I enjoyed painting her very much.", img: "gallery-dog-nikki-1.jpg" },
-    { title: "Nikki - 2",                      medium: "Acrylic on Canvas",      desc: "A gorgeous girl I painted for commission. She is very photogenic and I enjoyed painting her very much.", img: "gallery-dog-nikki-2.jpg" },
-    { title: "Perry",                          medium: "Acrylic on Canvas",      desc: "A quick painting of a cute parrot I saw on pinterest.", img: "gallery-parrot.jpg" },
-    { title: "Fluffy",                         medium: "Acrylic on Canvas",      desc: "A quick painting of a white dog from pinterest.", img: "gallery-dog-white.jpg" },
-    { title: "Nice Hat",                       medium: "Acrylic on Canvas",      desc: "He's just a silly fish with a cold head. Inspired by my partner who always used to wear a red hat.", img: "gallery-fish-hat.jpg" },
-    { title: "Three Sisters",                  medium: "Acrylic on Paper",       desc: "A painting of the Three Sisters I did for commission. It turned into a wedding card :)", img: "gallery-three-sisters.jpg" },
-    { title: "Shrimp King",                    medium: "Oil Pastel on Paper",    desc: "He isn't just a shrimp, he is a king. Quick sketch from my daily oil pastel endeavours.", img: "gallery-shrimp-king.jpg" },
-    { title: "Crabby Sheriff",                 medium: "Oil Pastel on Paper",    desc: "You better be good when Mr. Crab is watching. Quick sketch from my daily oil pastel endeavours.", img: "gallery-crab-cowboy.jpg" },
-    { title: "I'm a Ghost",                    medium: "Oil Pastel on Paper",    desc: "He's just a shy little guy. Quick sketch from my daily oil pastel endeavours.", img: "gallery-cat-ghost.jpg" },
-    { title: "Strawberry",                     medium: "Oil Pastel on Paper",    desc: "I was very proud to do this without a reference. Quick sketch from my daily oil pastel endeavours.", img: "gallery-strawberry.jpg" },
-    { title: "Remember",                       medium: "Oil Pastel on Paper",    desc: "A piece for a lost loved one. We will always remember him ❤️", img: "gallery-thistle.jpg" },
-    { title: "Earth Sea",                      medium: "Acrylic on Canvas",      desc: "A piece I drew for Ghibli paint night with my friends.", img: "gallery-earth-sea.jpg" },
-    { title: "Tunapet - 1",                    medium: "Woodburning",            desc: "My first and last woodburning piece at this scale because it took forever. It's a tunapet because it's a tuna and a trumpet hehe.", img: "gallery-fish-trumpet-1.jpg" },
-    { title: "Tunapet - 2",                    medium: "Woodburning",            desc: "My first and last woodburning piece at this scale because it took forever. It's a tunapet because it's a tuna and a trumpet hehe.", img: "gallery-fish-trumpet-2.jpg" },
-    { title: "Mr. Frog",                       medium: "Oil Pastel on Notebook", desc: "The cover for a little notebook I gifted to my partner.", img: "gallery-frog-tophat.jpg" },
-    { title: "Star Congrats",                  medium: "Acrylic on Paper",       desc: "A custom wedding card for my friends.", img: "gallery-star-congrats.jpg" },
-    { title: "Totoro & Kaonashi Pumpkin",      medium: "Pumpkin Carving",        desc: "I love halloween and I love Ghibli.", img: "gallery-totoro-kaonashi-pumpkin.jpg" },
-    { title: "Elmo on Fire Pumpkin",           medium: "Pumpkin Carving",        desc: "This was just too good not to do. Took forever to scrape away the flame area.", img: "gallery-elmo-pumpkin.jpg" },
-    { title: "Kaonashi & Daikon",              medium: "Polymer Clay",           desc: "My first polymer clay piece! My friend is a pro at polymer clay and she let me give it a go :)", img: "gallery-kaonashi-daikon.jpg" },
-    { title: "Strawberry Hat",                 medium: "Crochet",                desc: "My first crochet hat! Gifted to my partner's family's new baby <3", img: "gallery-strawberry-hat.jpg" },
-    { title: "Coffee Pirates",                 medium: "Fineliner on Paper",     desc: "I love small things in small spaces.", img: "gallery-cup-ship.jpg" },
-    { title: "My Escape",                      medium: "Fineliner on Paper",     desc: "It would be cool to have a second getaway home like this.", img: "gallery-flying-treehouse.jpg" },
-    { title: "Liquid Cat",                     medium: "Fineliner on Paper",     desc: "A quick sketch of a cute kitty in a tiny box.", img: "gallery-liquid-cat.jpg" },
-    { title: "Girl & Goose",                   medium: "Pencil on Paper",        desc: "A quick sketch of a girl and her goose plushy.", img: "gallery-girl-and-goose.jpg" },
-    { title: "Wizard Frog",                    medium: "Pencil on Paper",        desc: "A small guy with big magical dreams.", img: "gallery-wizard-frog.jpg" },
-    { title: "Nutella",                        medium: "Pencil on Paper",        desc: "There is something I can never stop eating and that is nutella.", img: "gallery-nutella.jpg" },
-    { title: "Plover Fam",                     medium: "Pencil on Paper",        desc: "I keep getting plover content on my instagram and they are so cute.", img: "gallery-plover-fam.jpg" },
-    { title: "Sus Dog",                        medium: "Fineliner on Paper",     desc: "This dog is instagram famous and I love him so much.", img: "gallery-sus-dog.jpg" },
-    { title: "Windy Waterton",                 medium: "Pen on Paper",           desc: "Drawn in the bumpy car ride on our way to Waterton. It was very windy in Waterton.", img: "gallery-waterton-chick.jpg" },
+    // ── HOME PAGE PREVIEW: first 6 items ──────────────────────
+    { title: "Laputa - Castle in the Sky", medium: "Acrylic & Fineliner",   desc: "From the iconic movie I've watched a thousand times. A super fun piece I drew as a part of a Ghibli paint night. Available as a print!", img: "gallery-laputa-2.jpg", imgs: ["gallery-laputa-1.jpg", "gallery-laputa-2.jpg"] },
+    { title: "Little Friend",              medium: "Acrylic on Canvas",      desc: "This commission started with my client and me on a very important mission—finding the cutest bear cub photo. Then I paired it with wildflowers from my summer hikes, and voilà! A piece we're both very happy with. \"Little Friend\" is your little friend at home reminding you to slow down and lay in the flowers.", img: "gallery-little-friend-2.jpg", imgs: ["gallery-little-friend-1.jpg", "gallery-little-friend-2.jpg"] },
+    { title: "Fabio",                      medium: "Acrylic on Canvas",      desc: "A fabulous orange cat I had the pleasure to paint as my first commission piece! From the customer: \"How did you know! Blue is his favourite colour.\"", img: "gallery-cat-fabio-2.jpg", imgs: ["gallery-cat-fabio-1.jpg", "gallery-cat-fabio-2.jpg"] },
+    { title: "Weeeee",                     medium: "Oil Pastel on Paper",    desc: "Just two friends going weeeeee. Quick sketch from my daily oil pastel endeavours.", img: "gallery-penguins.jpg" },
+    { title: "Basic Trio",                 medium: "Oil Pastel on Paper",    desc: "Everyone loves a three fish drawing so I had to join the bandwagon. Quick sketch from my daily oil pastel endeavours.", img: "gallery-three-fish.jpg" },
+    { title: "Fly Away",                   medium: "Fineliner on Paper",     desc: "A vision I had with some inspo from various pinterest images and a touch of ghibli-ness.", img: "gallery-robo-orca.jpg" },
   ];
+
   // Gallery in spreadsheet order — used on the full gallery page
   // (GALLERY above controls the home page preview order)
   const GALLERY_FULL = [
-    { title: "Laputa - Castle in the Sky - 1", medium: "Acrylic & Fineliner",   desc: "From the iconic movie I've watched a thousand times. A super fun piece I drew as a part of a Ghibli paint night. Available as a print!", img: "gallery-laputa-1.jpg" },
-    { title: "Laputa - Castle in the Sky - 2", medium: "Acrylic & Fineliner",   desc: "From the iconic movie I've watched a thousand times. A super fun piece I drew as a part of a Ghibli paint night. Available as a print!", img: "gallery-laputa-2.jpg" },
-    { title: "Little Friend - 1",              medium: "Acrylic on Canvas",      desc: "This commission started with my client and me on a very important mission—finding the cutest bear cub photo. Then I paired it with wildflowers from my summer hikes, and voilà! A piece we're both very happy with. \"Little Friend\" is your little friend at home reminding you to slow down and lay in the flowers.", img: "gallery-little-friend-1.jpg" },
-    { title: "Little Friend - 2",              medium: "Acrylic on Canvas",      desc: "This commission started with my client and me on a very important mission—finding the cutest bear cub photo. Then I paired it with wildflowers from my summer hikes, and voilà! A piece we're both very happy with. \"Little Friend\" is your little friend at home reminding you to slow down and lay in the flowers.", img: "gallery-little-friend-2.jpg" },
-    { title: "Jack - 1",                       medium: "Oil Pastel on Canvas",   desc: "Jack was the cutest cat who would follow you around the house and meow until he got some pets. I drew this piece as a gift to my partner's family when Jack passed away.", img: "gallery-cat-jack-1.jpg" },
-    { title: "Jack - 2",                       medium: "Oil Pastel on Canvas",   desc: "Jack was the cutest cat who would follow you around the house and meow until he got some pets. I drew this piece as a gift to my partner's family when Jack passed away.", img: "gallery-cat-jack-2.jpg" },
-    { title: "Fabio - 1",                      medium: "Acrylic on Canvas",      desc: "A fabulous orange cat I had the pleasure to paint as my first commission piece! From the customer: \"How did you know! Blue is his favourite colour.\"", img: "gallery-cat-fabio-1.jpg" },
-    { title: "Fabio - 2",                      medium: "Acrylic on Canvas",      desc: "A fabulous orange cat I had the pleasure to paint as my first commission piece! From the customer: \"How did you know! Blue is his favourite colour.\"", img: "gallery-cat-fabio-2.jpg" },
-    { title: "Nikki - 1",                      medium: "Acrylic on Canvas",      desc: "A gorgeous girl I painted for commission. She is very photogenic and I enjoyed painting her very much.", img: "gallery-dog-nikki-1.jpg" },
-    { title: "Nikki - 2",                      medium: "Acrylic on Canvas",      desc: "A gorgeous girl I painted for commission. She is very photogenic and I enjoyed painting her very much.", img: "gallery-dog-nikki-2.jpg" },
-    { title: "Perry",                          medium: "Acrylic on Canvas",      desc: "A quick painting of a cute parrot I saw on pinterest.", img: "gallery-parrot.jpg" },
-    { title: "Fluffy",                         medium: "Acrylic on Canvas",      desc: "A quick painting of a white dog from pinterest.", img: "gallery-dog-white.jpg" },
-    { title: "Nice Hat",                       medium: "Acrylic on Canvas",      desc: "He's just a silly fish with a cold head. Inspired by my partner who always used to wear a red hat.", img: "gallery-fish-hat.jpg" },
-    { title: "Three Sisters",                  medium: "Acrylic on Paper",       desc: "A painting of the Three Sisters I did for commission. It turned into a wedding card :)", img: "gallery-three-sisters.jpg" },
-    { title: "Shrimp King",                    medium: "Oil Pastel on Paper",    desc: "He isn't just a shrimp, he is a king. Quick sketch from my daily oil pastel endeavours.", img: "gallery-shrimp-king.jpg" },
-    { title: "Weeeee",                         medium: "Oil Pastel on Paper",    desc: "Just two friends going weeeeee. Quick sketch from my daily oil pastel endeavours.", img: "gallery-penguins.jpg" },
-    { title: "Crabby Sheriff",                 medium: "Oil Pastel on Paper",    desc: "You better be good when Mr. Crab is watching. Quick sketch from my daily oil pastel endeavours.", img: "gallery-crab-cowboy.jpg" },
-    { title: "I'm a Ghost",                    medium: "Oil Pastel on Paper",    desc: "He's just a shy little guy. Quick sketch from my daily oil pastel endeavours.", img: "gallery-cat-ghost.jpg" },
-    { title: "Strawberry",                     medium: "Oil Pastel on Paper",    desc: "I was very proud to do this without a reference. Quick sketch from my daily oil pastel endeavours.", img: "gallery-strawberry.jpg" },
-    { title: "Basic Trio",                     medium: "Oil Pastel on Paper",    desc: "Everyone loves a three fish drawing so I had to join the bandwagon. Quick sketch from my daily oil pastel endeavours.", img: "gallery-three-fish.jpg" },
-    { title: "Remember",                       medium: "Oil Pastel on Paper",    desc: "A piece for a lost loved one. We will always remember him ❤️", img: "gallery-thistle.jpg" },
-    { title: "Earth Sea",                      medium: "Acrylic on Canvas",      desc: "A piece I drew for Ghibli paint night with my friends.", img: "gallery-earth-sea.jpg" },
-    { title: "Tunapet - 1",                    medium: "Woodburning",            desc: "My first and last woodburning piece at this scale because it took forever. It's a tunapet because it's a tuna and a trumpet hehe.", img: "gallery-fish-trumpet-1.jpg" },
-    { title: "Tunapet - 2",                    medium: "Woodburning",            desc: "My first and last woodburning piece at this scale because it took forever. It's a tunapet because it's a tuna and a trumpet hehe.", img: "gallery-fish-trumpet-2.jpg" },
-    { title: "Mr. Frog",                       medium: "Oil Pastel on Notebook", desc: "The cover for a little notebook I gifted to my partner.", img: "gallery-frog-tophat.jpg" },
-    { title: "Star Congrats",                  medium: "Acrylic on Paper",       desc: "A custom wedding card for my friends.", img: "gallery-star-congrats.jpg" },
-    { title: "Totoro & Kaonashi Pumpkin",      medium: "Pumpkin Carving",        desc: "I love halloween and I love Ghibli.", img: "gallery-totoro-kaonashi-pumpkin.jpg" },
-    { title: "Elmo on Fire Pumpkin",           medium: "Pumpkin Carving",        desc: "This was just too good not to do. Took forever to scrape away the flame area.", img: "gallery-elmo-pumpkin.jpg" },
-    { title: "Kaonashi & Daikon",              medium: "Polymer Clay",           desc: "My first polymer clay piece! My friend is a pro at polymer clay and she let me give it a go :)", img: "gallery-kaonashi-daikon.jpg" },
-    { title: "Strawberry Hat",                 medium: "Crochet",                desc: "My first crochet hat! Gifted to my partner's family's new baby <3", img: "gallery-strawberry-hat.jpg" },
-    { title: "Fly Away",                       medium: "Fineliner on Paper",     desc: "A vision I had with some inspo from various pinterest images and a touch of ghibli-ness.", img: "gallery-robo-orca.jpg" },
-    { title: "Coffee Pirates",                 medium: "Fineliner on Paper",     desc: "I love small things in small spaces.", img: "gallery-cup-ship.jpg" },
-    { title: "My Escape",                      medium: "Fineliner on Paper",     desc: "It would be cool to have a second getaway home like this.", img: "gallery-flying-treehouse.jpg" },
-    { title: "Liquid Cat",                     medium: "Fineliner on Paper",     desc: "A quick sketch of a cute kitty in a tiny box.", img: "gallery-liquid-cat.jpg" },
-    { title: "Girl & Goose",                   medium: "Pencil on Paper",        desc: "A quick sketch of a girl and her goose plushy.", img: "gallery-girl-and-goose.jpg" },
-    { title: "Wizard Frog",                    medium: "Pencil on Paper",        desc: "A small guy with big magical dreams.", img: "gallery-wizard-frog.jpg" },
-    { title: "Nutella",                        medium: "Pencil on Paper",        desc: "There is something I can never stop eating and that is nutella.", img: "gallery-nutella.jpg" },
-    { title: "Plover Fam",                     medium: "Pencil on Paper",        desc: "I keep getting plover content on my instagram and they are so cute.", img: "gallery-plover-fam.jpg" },
-    { title: "Sus Dog",                        medium: "Fineliner on Paper",     desc: "This dog is instagram famous and I love him so much.", img: "gallery-sus-dog.jpg" },
-    { title: "Windy Waterton",                 medium: "Pen on Paper",           desc: "Drawn in the bumpy car ride on our way to Waterton. It was very windy in Waterton.", img: "gallery-waterton-chick.jpg" },
+    { title: "Laputa - Castle in the Sky", medium: "Acrylic & Fineliner",   desc: "From the iconic movie I've watched a thousand times. A super fun piece I drew as a part of a Ghibli paint night. Available as a print!", img: "gallery-laputa-1.jpg", imgs: ["gallery-laputa-1.jpg", "gallery-laputa-2.jpg"] },
+    { title: "Little Friend",              medium: "Acrylic on Canvas",      desc: "This commission started with my client and me on a very important mission—finding the cutest bear cub photo. Then I paired it with wildflowers from my summer hikes, and voilà! A piece we're both very happy with. \"Little Friend\" is your little friend at home reminding you to slow down and lay in the flowers.", img: "gallery-little-friend-1.jpg", imgs: ["gallery-little-friend-1.jpg", "gallery-little-friend-2.jpg"] },
+    { title: "Jack",                       medium: "Oil Pastel on Canvas",   desc: "Jack was the cutest cat who would follow you around the house and meow until he got some pets. I drew this piece as a gift to my partner's family when Jack passed away.", img: "gallery-cat-jack-1.jpg", imgs: ["gallery-cat-jack-1.jpg", "gallery-cat-jack-2.jpg"] },
+    { title: "Fabio",                      medium: "Acrylic on Canvas",      desc: "A fabulous orange cat I had the pleasure to paint as my first commission piece! From the customer: \"How did you know! Blue is his favourite colour.\"", img: "gallery-cat-fabio-1.jpg", imgs: ["gallery-cat-fabio-1.jpg", "gallery-cat-fabio-2.jpg"] },
+    { title: "Nikki",                      medium: "Acrylic on Canvas",      desc: "A gorgeous girl I painted for commission. She is very photogenic and I enjoyed painting her very much.", img: "gallery-dog-nikki-1.jpg", imgs: ["gallery-dog-nikki-1.jpg", "gallery-dog-nikki-2.jpg"] },
+    { title: "Perry",                      medium: "Acrylic on Canvas",      desc: "A quick painting of a cute parrot I saw on pinterest.", img: "gallery-parrot.jpg" },
+    { title: "Fluffy",                     medium: "Acrylic on Canvas",      desc: "A quick painting of a white dog from pinterest.", img: "gallery-dog-white.jpg" },
+    { title: "Nice Hat",                   medium: "Acrylic on Canvas",      desc: "He's just a silly fish with a cold head. Inspired by my partner who always used to wear a red hat.", img: "gallery-fish-hat.jpg" },
+    { title: "Three Sisters",              medium: "Acrylic on Paper",       desc: "A painting of the Three Sisters I did for commission. It turned into a wedding card :)", img: "gallery-three-sisters.jpg" },
+    { title: "Shrimp King",                medium: "Oil Pastel on Paper",    desc: "He isn't just a shrimp, he is a king. Quick sketch from my daily oil pastel endeavours.", img: "gallery-shrimp-king.jpg" },
+    { title: "Weeeee",                     medium: "Oil Pastel on Paper",    desc: "Just two friends going weeeeee. Quick sketch from my daily oil pastel endeavours.", img: "gallery-penguins.jpg" },
+    { title: "Crabby Sheriff",             medium: "Oil Pastel on Paper",    desc: "You better be good when Mr. Crab is watching. Quick sketch from my daily oil pastel endeavours.", img: "gallery-crab-cowboy.jpg" },
+    { title: "I'm a Ghost",               medium: "Oil Pastel on Paper",    desc: "He's just a shy little guy. Quick sketch from my daily oil pastel endeavours.", img: "gallery-cat-ghost.jpg" },
+    { title: "Strawberry",                 medium: "Oil Pastel on Paper",    desc: "I was very proud to do this without a reference. Quick sketch from my daily oil pastel endeavours.", img: "gallery-strawberry.jpg" },
+    { title: "Basic Trio",                 medium: "Oil Pastel on Paper",    desc: "Everyone loves a three fish drawing so I had to join the bandwagon. Quick sketch from my daily oil pastel endeavours.", img: "gallery-three-fish.jpg" },
+    { title: "Remember",                   medium: "Oil Pastel on Paper",    desc: "A piece for a lost loved one. We will always remember him ❤️", img: "gallery-thistle.jpg" },
+    { title: "Earth Sea",                  medium: "Acrylic on Canvas",      desc: "A piece I drew for Ghibli paint night with my friends.", img: "gallery-earth-sea.jpg" },
+    { title: "Tunapet",                    medium: "Woodburning",            desc: "My first and last woodburning piece at this scale because it took forever. It's a tunapet because it's a tuna and a trumpet hehe.", img: "gallery-fish-trumpet-1.jpg", imgs: ["gallery-fish-trumpet-1.jpg", "gallery-fish-trumpet-2.jpg"] },
+    { title: "Mr. Frog",                   medium: "Oil Pastel on Notebook", desc: "The cover for a little notebook I gifted to my partner.", img: "gallery-frog-tophat.jpg" },
+    { title: "Star Congrats",              medium: "Acrylic on Paper",       desc: "A custom wedding card for my friends.", img: "gallery-star-congrats.jpg" },
+    { title: "Totoro & Kaonashi Pumpkin",  medium: "Pumpkin Carving",        desc: "I love halloween and I love Ghibli.", img: "gallery-totoro-kaonashi-pumpkin.jpg" },
+    { title: "Elmo on Fire Pumpkin",       medium: "Pumpkin Carving",        desc: "This was just too good not to do. Took forever to scrape away the flame area.", img: "gallery-elmo-pumpkin.jpg" },
+    { title: "Kaonashi & Daikon",          medium: "Polymer Clay",           desc: "My first polymer clay piece! My friend is a pro at polymer clay and she let me give it a go :)", img: "gallery-kaonashi-daikon.jpg" },
+    { title: "Strawberry Hat",             medium: "Crochet",                desc: "My first crochet hat! Gifted to my partner's family's new baby <3", img: "gallery-strawberry-hat.jpg" },
+    { title: "Fly Away",                   medium: "Fineliner on Paper",     desc: "A vision I had with some inspo from various pinterest images and a touch of ghibli-ness.", img: "gallery-robo-orca.jpg" },
+    { title: "Coffee Pirates",             medium: "Fineliner on Paper",     desc: "I love small things in small spaces.", img: "gallery-cup-ship.jpg" },
+    { title: "My Escape",                  medium: "Fineliner on Paper",     desc: "It would be cool to have a second getaway home like this.", img: "gallery-flying-treehouse.jpg" },
+    { title: "Liquid Cat",                 medium: "Fineliner on Paper",     desc: "A quick sketch of a cute kitty in a tiny box.", img: "gallery-liquid-cat.jpg" },
+    { title: "Girl & Goose",               medium: "Pencil on Paper",        desc: "A quick sketch of a girl and her goose plushy.", img: "gallery-girl-and-goose.jpg" },
+    { title: "Wizard Frog",                medium: "Pencil on Paper",        desc: "A small guy with big magical dreams.", img: "gallery-wizard-frog.jpg" },
+    { title: "Nutella",                    medium: "Pencil on Paper",        desc: "There is something I can never stop eating and that is nutella.", img: "gallery-nutella.jpg" },
+    { title: "Plover Fam",                 medium: "Pencil on Paper",        desc: "I keep getting plover content on my instagram and they are so cute.", img: "gallery-plover-fam.jpg" },
+    { title: "Sus Dog",                    medium: "Fineliner on Paper",     desc: "This dog is instagram famous and I love him so much.", img: "gallery-sus-dog.jpg" },
+    { title: "Windy Waterton",             medium: "Pen on Paper",           desc: "Drawn in the bumpy car ride on our way to Waterton. It was very windy in Waterton.", img: "gallery-waterton-chick.jpg" },
   ];
+
 
 
   // ============================================================
@@ -1600,20 +1559,20 @@
     { id: "sticker-wizard-frog", name: "Wizard Frog Sticker",                tags: ['stickers'],
       bestseller: true, fulfillment: "self",
       desc: "A whimsical frog wizard to brighten your day. 2.8×2.5\" matte vinyl, weatherproof.",
-      price: 500, stock: null, img: "sticker-wizard-frog-2.jpg", imgs: ["sticker-wizard-frog-1.jpg", "sticker-wizard-frog-2.jpg"], stripePrice: "price_1TBSGPCrD8LBJ3ocgCB9GHSk" },
+      price: 500, stock: null, img: "sticker-wizard-frog-1.jpg", imgs: ["sticker-wizard-frog-1.jpg", "sticker-wizard-frog-2.jpg"], stripePrice: "price_1TBSGPCrD8LBJ3ocgCB9GHSk" },
 
     // ── PRINTS (4th slot on home page) ──────────────────────────
     { id: "print-jack-cat",     name: "Jack Cat Print",                      tags: ['prints'],
       bestseller: false, fulfillment: "self",
       desc: "From an original oil pastel painting. Professional print on 250gsm paper, 6×6\". Ships in rigid mailer.",
-      price: 1200, stock: null, img: "print-jack-cat-2.jpg", imgs: ["print-jack-cat-1.jpg", "print-jack-cat-2.jpg", "print-jack-cat-3.jpg", "print-jack-cat-4.jpg"], stripePrice: "price_1TBRxSCrD8LBJ3oc4M7teALP" },
+      price: 1200, stock: null, img: "print-jack-cat-1.jpg", imgs: ["print-jack-cat-1.jpg", "print-jack-cat-2.jpg", "print-jack-cat-3.jpg", "print-jack-cat-4.jpg"], stripePrice: "price_1TBRxSCrD8LBJ3oc4M7teALP" },
 
     // ── MERCH (5th + 6th slots on home page) ────────────────────
     {
       id: "sweater-noggin",     name: "Bonked Noggin Club Sweater",           tags: ['merch'],
       bestseller: true, fulfillment: "printful",
       desc: "Let's embrace our cute, silly, bonked-noggin life with this crewneck sweater. For my concussion + TBI community. 50/50 cotton-poly. Gildan 18000. Custom order printed + shipped by Printful ❤️",
-      img: "sweater-noggin-2.jpg", imgs: ["sweater-noggin-1.jpg", "sweater-noggin-2.jpg", "sweater-noggin-3.jpg", "product-sweater-size.jpg"],
+      img: "sweater-noggin-1.jpg", imgs: ["sweater-noggin-1.jpg", "sweater-noggin-2.jpg", "sweater-noggin-3.jpg", "product-sweater-size.jpg"],
       variants: [
         { size: "S",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TAZgYCrD8LBJ3ochvuo9bl5", printfulVariantId: null },
         { size: "M",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TAZgYCrD8LBJ3ochvuo9bl5", printfulVariantId: null },
@@ -1628,7 +1587,7 @@
       id: "sweater-hiking-boots", name: "Life is Better in Hiking Boots Sweater", tags: ['merch'],
       bestseller: true, fulfillment: "printful",
       desc: "A cozy sketch from my sketchbook, now on a crewneck for adventure lovers. 50/50 cotton-poly. Gildan 18000. Custom order printed + shipped by Printful ❤️",
-      img: "sweater-hiking-boots-2.jpg", imgs: ["sweater-hiking-boots-1.jpg", "sweater-hiking-boots-2.jpg", "sweater-hiking-boots-3.jpg", "product-sweater-size.jpg"],
+      img: "sweater-hiking-boots-1.jpg", imgs: ["sweater-hiking-boots-1.jpg", "sweater-hiking-boots-2.jpg", "sweater-hiking-boots-3.jpg", "product-sweater-size.jpg"],
       variants: [
         { size: "S",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TBQOOCrD8LBJ3ocf4835K9n", printfulVariantId: null },
         { size: "M",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TBQOOCrD8LBJ3ocf4835K9n", printfulVariantId: null },
@@ -1642,7 +1601,7 @@
       id: "tshirt-hiking-boots", name: "Life is Better in Hiking Boots T-shirt", tags: ['merch'],
       bestseller: false, fulfillment: "printful",
       desc: "A cozy sketch from my sketchbook, now on a t-shirt for adventure lovers. 100% cotton unisex classic tee Gildan 5000. Custom order printed + shipped by Printful ❤️",
-      img: "tshirt-hiking-boots-2.jpg", imgs: ["tshirt-hiking-boots-1.jpg", "tshirt-hiking-boots-2.jpg", "tshirt-hiking-boots-3.jpg", "product-shirt-size.jpg"],
+      img: "tshirt-hiking-boots-1.jpg", imgs: ["tshirt-hiking-boots-1.jpg", "tshirt-hiking-boots-2.jpg", "tshirt-hiking-boots-3.jpg", "product-shirt-size.jpg"],
       variants: [
         { size: "S",  price: 3500, stock: null, fulfillment: "printful", stripePrice: "price_1TBSLdCrD8LBJ3ocSJq6QQ6C", printfulVariantId: null },
         { size: "M",  price: 3500, stock: null, fulfillment: "printful", stripePrice: "price_1TBSLdCrD8LBJ3ocSJq6QQ6C", printfulVariantId: null },
@@ -1656,7 +1615,7 @@
     { id: "tote-banff-bear",    name: "Banff Bear Tote",                     tags: ['merch', 'banff'],
       bestseller: true, fulfillment: "self",
       desc: "Canvas tote with a one stroke Banff Bear design. 40×35cm.",
-      price: 2600, stock: null, img: "tote-banff-bear-2.jpg", imgs: ["tote-banff-bear-1.jpg", "tote-banff-bear-2.jpg"], stripePrice: "price_1TAZFECrD8LBJ3ocrbpFdN8a" },
+      price: 2600, stock: null, img: "tote-banff-bear-1.jpg", imgs: ["tote-banff-bear-1.jpg", "tote-banff-bear-2.jpg"], stripePrice: "price_1TAZFECrD8LBJ3ocrbpFdN8a" },
 
     // ═══════════════════════════════════════════════════════════
     // REST OF STICKERS
@@ -1665,7 +1624,7 @@
     { id: "sticker-cat",        name: "Liquid Cat Sticker",                  tags: ['stickers'],
       bestseller: true, fulfillment: "self",
       desc: "A very liquid cat in a tiny box. 2.5×1.85\" matte vinyl, weatherproof.",
-      price: 500, stock: null, img: "sticker-cat-2.jpg", imgs: ["sticker-cat-1.jpg", "sticker-cat-2.jpg"], stripePrice: "price_1TBSAlCrD8LBJ3ocnodWyOJm" },
+      price: 500, stock: null, img: "sticker-cat-1.jpg", imgs: ["sticker-cat-1.jpg", "sticker-cat-2.jpg"], stripePrice: "price_1TBSAlCrD8LBJ3ocnodWyOJm" },
 
     { id: "sticker-duck",       name: "Duck Mirror Sticker",                 tags: ['stickers'],
       bestseller: true, fulfillment: "self",
@@ -1680,7 +1639,7 @@
     { id: "sticker-girl-goose", name: "Girl & Goose Sticker",                tags: ['stickers'],
       bestseller: false, fulfillment: "self",
       desc: "Pencil-sketched cute vibes for cute-vibes people. 2.5×1.85\" matte vinyl, weatherproof.",
-      price: 500, stock: null, img: "sticker-girl-and-goose-2.jpg", imgs: ["sticker-girl-and-goose-1.jpg", "sticker-girl-and-goose-2.jpg"], stripePrice: "price_1TBS3OCrD8LBJ3ocWoFNzWxO" },
+      price: 500, stock: null, img: "sticker-girl-and-goose-1.jpg", imgs: ["sticker-girl-and-goose-1.jpg", "sticker-girl-and-goose-2.jpg"], stripePrice: "price_1TBS3OCrD8LBJ3ocWoFNzWxO" },
 
     { id: "sticker-housing",    name: "Affordable Housing in Banff Sticker", tags: ['stickers', 'banff'],
       bestseller: true, fulfillment: "self",
@@ -1705,7 +1664,7 @@
     { id: "sticker-nutella",    name: "Nutella Sticker",                     tags: ['stickers'],
       bestseller: false, fulfillment: "self",
       desc: "For Nutella lovers. A little sweetness for your laptop. 2.5×1.85\" matte vinyl, weatherproof.",
-      price: 500, stock: null, img: "sticker-nutella-2.jpg", imgs: ["sticker-nutella-1.jpg", "sticker-nutella-2.jpg"], stripePrice: "price_1TAZV1CrD8LBJ3ocUA7DrB4J" },
+      price: 500, stock: null, img: "sticker-nutella-1.jpg", imgs: ["sticker-nutella-1.jpg", "sticker-nutella-2.jpg"], stripePrice: "price_1TAZV1CrD8LBJ3ocUA7DrB4J" },
 
     { id: "sticker-goated",     name: "Banff Is Goated Sticker",             tags: ['stickers', 'banff'],
       bestseller: true, fulfillment: "self",
@@ -1725,7 +1684,7 @@
     { id: "sticker-plover",     name: "Plover Fam Sticker",                  tags: ['stickers'],
       bestseller: false, fulfillment: "self",
       desc: "A pencil-sketched plover family. For birb lovers. 3×2.5\" matte vinyl, weatherproof.",
-      price: 500, stock: null, img: "sticker-plover-2.jpg", imgs: ["sticker-plover-1.jpg", "sticker-plover-2.jpg"], stripePrice: "price_1TBSBeCrD8LBJ3ocdudchBGa" },
+      price: 500, stock: null, img: "sticker-plover-1.jpg", imgs: ["sticker-plover-1.jpg", "sticker-plover-2.jpg"], stripePrice: "price_1TBSBeCrD8LBJ3ocdudchBGa" },
 
     { id: "sticker-tv-angel",   name: "TV Angel Sticker",                    tags: ['stickers'],
       bestseller: false, fulfillment: "self",
@@ -1745,7 +1704,7 @@
     { id: "sticker-dog",        name: "Sus Dog Sticker",                     tags: ['stickers'],
       bestseller: false, fulfillment: "self",
       desc: "An Instagram-famous sassy dog, looking for a new home. 2.5×1.85\" matte vinyl, weatherproof.",
-      price: 500, stock: null, img: "sticker-dog-2.jpg", imgs: ["sticker-dog-1.jpg", "sticker-dog-2.jpg"], stripePrice: "price_1TBS4eCrD8LBJ3ocpkJoe0fB" },
+      price: 500, stock: null, img: "sticker-dog-1.jpg", imgs: ["sticker-dog-1.jpg", "sticker-dog-2.jpg"], stripePrice: "price_1TBS4eCrD8LBJ3ocpkJoe0fB" },
 
     { id: "sticker-tuna",       name: "Tuna Sticker",                        tags: ['stickers'],
       bestseller: false, fulfillment: "self",
@@ -1759,13 +1718,13 @@
     { id: "print-laputa",       name: "Laputa Print",                        tags: ['prints'],
       bestseller: true, fulfillment: "self",
       desc: "Inspired by Laputa (aka Castle in the Sky). Professional print on 250gsm paper, 8×10\". Ships in rigid mailer.",
-      price: 1600, stock: null, img: "print-laputa-2.jpg", imgs: ["print-laputa-1.jpg", "print-laputa-2.jpg", "print-laputa-3.jpg", "print-laputa-4.jpg", "print-laputa-5.jpg"], stripePrice: "price_1TBQYqCrD8LBJ3ocQXB0sQOt" },
+      price: 1600, stock: null, img: "print-laputa-1.jpg", imgs: ["print-laputa-1.jpg", "print-laputa-2.jpg", "print-laputa-3.jpg", "print-laputa-4.jpg", "print-laputa-5.jpg"], stripePrice: "price_1TBQYqCrD8LBJ3ocQXB0sQOt" },
 
     {
       id: "print-little-friend", name: "Little Friend Fine Art Print",       tags: ['prints', 'banff'],
       bestseller: true, fulfillment: "self",
       desc: "Originally an acrylic painting on a 24×30\" canvas, ft. wildflowers from the Rockies and a cutsie black bear cub. Giclée archival print on 200gsm matte paper.",
-      img: "print-little-friend-2.jpg", imgs: ["print-little-friend-1.jpg", "print-little-friend-2.jpg", "print-little-friend-3.jpg", "print-little-friend-4.jpg", "print-little-friend-5.jpg"],
+      img: "print-little-friend-1.jpg", imgs: ["print-little-friend-1.jpg", "print-little-friend-2.jpg", "print-little-friend-3.jpg", "print-little-friend-4.jpg", "print-little-friend-5.jpg"],
       variants: [
         { size: "8x10",  price: 3000, stock: null, fulfillment: "self", stripePrice: "price_1TBQSzCrD8LBJ3ocV00H7jcG", printfulVariantId: null },
         { size: "11x14", price: 4500, stock: null, fulfillment: "self", stripePrice: "price_1TBQSmCrD8LBJ3ocMckLAAHg", printfulVariantId: null },
@@ -1776,56 +1735,22 @@
     { id: "print-fabio-cat",    name: "Fabio Cat Print",                     tags: ['prints'],
       bestseller: false, fulfillment: "self",
       desc: "From an original acrylic painting. Professional print on 250gsm paper, 6×6\". Ships in rigid mailer.",
-      price: 1200, stock: null, img: "print-fabio-cat-2.jpg", imgs: ["print-fabio-cat-1.jpg", "print-fabio-cat-2.jpg", "print-fabio-cat-3.jpg", "print-fabio-cat-4.jpg"], stripePrice: "price_1TBRysCrD8LBJ3ocKXpwgz3Q" },
+      price: 1200, stock: null, img: "print-fabio-cat-1.jpg", imgs: ["print-fabio-cat-1.jpg", "print-fabio-cat-2.jpg", "print-fabio-cat-3.jpg", "print-fabio-cat-4.jpg"], stripePrice: "price_1TBRysCrD8LBJ3ocKXpwgz3Q" },
 
     { id: "print-nikki-dog",    name: "Nikki Dog Print",                     tags: ['prints'],
       bestseller: false, fulfillment: "self",
       desc: "From an original acrylic painting. Professional print on 250gsm paper, 6×6\". Ships in rigid mailer.",
-      price: 1200, stock: null, img: "print-nikki-dog-2.jpg", imgs: ["print-nikki-dog-1.jpg", "print-nikki-dog-2.jpg", "print-nikki-dog-3.jpg"], stripePrice: "price_1TBRvsCrD8LBJ3ocTwKj6NA1" },
+      price: 1200, stock: null, img: "print-nikki-dog-1.jpg", imgs: ["print-nikki-dog-1.jpg", "print-nikki-dog-2.jpg", "print-nikki-dog-3.jpg"], stripePrice: "price_1TBRvsCrD8LBJ3ocTwKj6NA1" },
 
     { id: "print-life-is-better", name: "Life is Better in Hiking Boots Print", tags: ['prints'],
       bestseller: false, fulfillment: "self",
       desc: "A cozy sketch from my sketchbook, now a print for adventure lovers. Professional print on 250gsm paper, 8×10\". Ships in rigid mailer.",
-      price: 1600, stock: null, img: "print-life-is-better-2.jpg", imgs: ["print-life-is-better-1.jpg", "print-life-is-better-2.jpg", "print-life-is-better-3.jpg"], stripePrice: "price_1TBQKjCrD8LBJ3oci5farutr" },
+      price: 1600, stock: null, img: "print-life-is-better-1.jpg", imgs: ["print-life-is-better-1.jpg", "print-life-is-better-2.jpg", "print-life-is-better-3.jpg"], stripePrice: "price_1TBQKjCrD8LBJ3oci5farutr" },
 
     { id: "print-affordable-housing", name: "Affordable Housing in Banff Print", tags: ['prints', 'banff'],
       bestseller: false, fulfillment: "self",
       desc: "If you\'ve lived in Banff, you get it. Manifesting a shoe house. Professional print on 250gsm paper, 8×10\". Ships in rigid mailer.",
-      price: 1600, stock: null, img: "print-affordable-housing-2.jpg", imgs: ["print-affordable-housing-1.jpg", "print-affordable-housing-2.jpg", "print-affordable-housing-3.jpg"], stripePrice: "price_1TBQUlCrD8LBJ3oc5GQzLfEX" },
-
-    // ═══════════════════════════════════════════════════════════
-    // MERCH
-    // ═══════════════════════════════════════════════════════════
-
-    {
-      id: "sweater-noggin",     name: "Bonked Noggin Club Sweater",           tags: ['merch'],
-      bestseller: true, fulfillment: "printful",
-      desc: "Let\'s embrace our cute, silly, bonked-noggin life with this crewneck sweater. For my concussion + TBI community. 50/50 cotton-poly. Gildan 18000. Custom order printed + shipped by Printful ❤️",
-      img: "sweater-noggin-2.jpg", imgs: ["sweater-noggin-1.jpg", "sweater-noggin-2.jpg", "sweater-noggin-3.jpg", "product-sweater-size.jpg"],
-      variants: [
-        { size: "S",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TAZgYCrD8LBJ3ochvuo9bl5", printfulVariantId: null },
-        { size: "M",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TAZgYCrD8LBJ3ochvuo9bl5", printfulVariantId: null },
-        { size: "L",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TAZgYCrD8LBJ3ochvuo9bl5", printfulVariantId: null },
-        { size: "XL", price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TAZgYCrD8LBJ3ochvuo9bl5", printfulVariantId: null },
-        { size: "2X", price: 5600, stock: null, fulfillment: "printful", stripePrice: "price_1TAZrVCrD8LBJ3ocK9W4cRjC", printfulVariantId: null },
-        { size: "3X", price: 6200, stock: null, fulfillment: "printful", stripePrice: "price_1TAZrpCrD8LBJ3ockzRHd7S9", printfulVariantId: null },
-      ],
-    },
-
-    {
-      id: "tshirt-hiking-boots", name: "Life is Better in Hiking Boots T-shirt", tags: ['merch'],
-      bestseller: false, fulfillment: "printful",
-      desc: "A cozy sketch from my sketchbook, now on a t-shirt for adventure lovers. 100% cotton unisex classic tee Gildan 5000. Custom order printed + shipped by Printful ❤️",
-      img: "tshirt-hiking-boots-2.jpg", imgs: ["tshirt-hiking-boots-1.jpg", "tshirt-hiking-boots-2.jpg", "tshirt-hiking-boots-3.jpg", "product-shirt-size.jpg"],
-      variants: [
-        { size: "S",  price: 3500, stock: null, fulfillment: "printful", stripePrice: "price_1TBSLdCrD8LBJ3ocSJq6QQ6C", printfulVariantId: null },
-        { size: "M",  price: 3500, stock: null, fulfillment: "printful", stripePrice: "price_1TBSLdCrD8LBJ3ocSJq6QQ6C", printfulVariantId: null },
-        { size: "L",  price: 3500, stock: null, fulfillment: "printful", stripePrice: "price_1TBSLdCrD8LBJ3ocSJq6QQ6C", printfulVariantId: null },
-        { size: "XL", price: 3500, stock: null, fulfillment: "printful", stripePrice: "price_1TBSLdCrD8LBJ3ocSJq6QQ6C", printfulVariantId: null },
-        { size: "2X", price: 3700, stock: null, fulfillment: "printful", stripePrice: "price_1TBSLACrD8LBJ3ocaW9bC1CW", printfulVariantId: null },
-        { size: "3X", price: 4200, stock: null, fulfillment: "printful", stripePrice: "price_1TBSKjCrD8LBJ3ocIqlnd85l", printfulVariantId: null },
-      ],
-    },
+      price: 1600, stock: null, img: "print-affordable-housing-1.jpg", imgs: ["print-affordable-housing-1.jpg", "print-affordable-housing-2.jpg", "print-affordable-housing-3.jpg"], stripePrice: "price_1TBQUlCrD8LBJ3oc5GQzLfEX" },
 
     // ═══════════════════════════════════════════════════════════
     // ORIGINALS
@@ -2144,63 +2069,68 @@
   // ============================================================
   // GALLERY MODAL
   // ============================================================
+  // ── Shared image carousel builder ───────────────────────────
+  // Builds arrows + dots inside any container, returns a setImg(index) fn
+  function buildImgCarousel(container, imgEl, imgList) {
+    // Remove old nav elements
+    container.querySelectorAll('.img-nav-arrow, .img-nav-dots').forEach(e => e.remove());
+    let current = 0;
+
+    function goTo(i) {
+      current = (i + imgList.length) % imgList.length;
+      imgEl.classList.remove('loaded');
+      imgEl.src = 'images/' + imgList[current];
+      imgEl.onload = () => imgEl.classList.add('loaded');
+      imgEl.onerror = () => {};
+      container.querySelectorAll('.img-nav-dot').forEach((d, idx) => d.classList.toggle('active', idx === current));
+    }
+
+    if (imgList.length > 1) {
+      const prev = document.createElement('button');
+      prev.className = 'img-nav-arrow prev';
+      prev.innerHTML = '‹';
+      prev.onclick = (e) => { e.stopPropagation(); goTo(current - 1); };
+
+      const next = document.createElement('button');
+      next.className = 'img-nav-arrow next';
+      next.innerHTML = '›';
+      next.onclick = (e) => { e.stopPropagation(); goTo(current + 1); };
+
+      const dotsEl = document.createElement('div');
+      dotsEl.className = 'img-nav-dots';
+      imgList.forEach((_, i) => {
+        const d = document.createElement('span');
+        d.className = 'img-nav-dot' + (i === 0 ? ' active' : '');
+        d.onclick = (e) => { e.stopPropagation(); goTo(i); };
+        dotsEl.appendChild(d);
+      });
+
+      container.appendChild(prev);
+      container.appendChild(next);
+      container.appendChild(dotsEl);
+    }
+
+    return goTo;
+  }
+
   function openGalleryModal(index) {
-    const item = GALLERY_FULL[index] || GALLERY[index];
+    const list   = (document.getElementById('galleryPage').classList.contains('active')) ? GALLERY_FULL : GALLERY;
+    const item   = list[index];
     if (!item) return;
     document.getElementById('galleryModalTitle').textContent  = item.title;
     document.getElementById('galleryModalMedium').textContent = item.medium;
     document.getElementById('galleryModalDesc').textContent   = item.desc;
 
-    const imgEl    = document.getElementById('galleryModalImg');
-    const labelEl  = document.getElementById('galleryModalImgLabel');
-    const thumbsEl = document.getElementById('galleryModalThumbs');
+    const imgEl   = document.getElementById('galleryModalImg');
+    const box     = document.getElementById('galleryModalImgBox');
+    const imgs    = item.imgs ? [...item.imgs] : [item.img];
 
-    // Detect paired images: if filename ends in -1.jpg or -2.jpg, build a pair
-    function setGalleryImg(src) {
-      imgEl.classList.remove('loaded');
-      imgEl.style.display = '';
-      labelEl.style.display = 'none';
-      imgEl.src = 'images/' + src;
-      imgEl.onload  = () => imgEl.classList.add('loaded');
-      imgEl.onerror = () => { imgEl.style.display = 'none'; labelEl.style.display = ''; labelEl.textContent = src; };
-      document.querySelectorAll('.gallery-modal-thumb').forEach(t => {
-        t.classList.toggle('active', t.dataset.src === src);
-      });
-    }
+    imgEl.classList.remove('loaded');
+    imgEl.style.display = '';
+    document.getElementById('galleryModalImgLabel').style.display = 'none';
 
-    const match = item.img.match(/^(.+)-(\d+)(\.jpg)$/i);
-    thumbsEl.innerHTML = '';
-    if (match) {
-      // Find all numbered siblings by checking GALLERY_FULL for same base
-      const base = match[1];
-      const ext  = match[3];
-      // Collect all imgs with same base across both arrays
-      const allImgs = [];
-      const seen = new Set();
-      [...GALLERY_FULL, ...GALLERY].forEach(g => {
-        const m = g.img.match(/^(.+)-(\d+)(\.jpg)$/i);
-        if (m && m[1] === base && !seen.has(g.img)) { seen.add(g.img); allImgs.push(g.img); }
-      });
-      allImgs.sort();
-      if (allImgs.length > 1) {
-        allImgs.forEach(fname => {
-          const t = document.createElement('img');
-          t.className = 'gallery-modal-thumb';
-          t.src = 'images/' + fname;
-          t.dataset.src = fname;
-          t.alt = '';
-          t.onerror = () => t.style.display = 'none';
-          t.onclick = (e) => { e.stopPropagation(); setGalleryImg(fname); };
-          thumbsEl.appendChild(t);
-        });
-        // Start on -2 (index 1) as the primary
-        setGalleryImg(allImgs[Math.min(1, allImgs.length - 1)]);
-      } else {
-        setGalleryImg(item.img);
-      }
-    } else {
-      setGalleryImg(item.img);
-    }
+    const goTo = buildImgCarousel(box, imgEl, imgs);
+    goTo(0); // start on first image
 
     document.getElementById('galleryModalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -2433,41 +2363,16 @@
     document.getElementById('modalTitle').textContent = p.name;
     document.getElementById('modalDesc').textContent  = p.desc || '';
 
-    // Multi-image support: use p.imgs array if available, fall back to p.img
-    const imgEl        = document.getElementById('modalImg');
-    const labelEl      = document.getElementById('modalImgLabel');
-    const thumbsEl     = document.getElementById('modalThumbnails');
-    const allImgs      = p.imgs ? p.imgs : (p.img ? [p.img] : []);
+    // Build image carousel using shared helper
+    const imgEl   = document.getElementById('modalImg');
+    const labelEl = document.getElementById('modalImgLabel');
+    const imgWrap = document.getElementById('modalImgBox');
+    const allImgs = p.imgs ? p.imgs : (p.img ? [p.img] : []);
 
-    function setModalImage(filename) {
-      imgEl.style.display = '';
-      labelEl.style.display = 'none';
-      imgEl.src = 'images/' + filename;
-      imgEl.alt = p.name;
-      imgEl.onerror = () => { imgEl.style.display = 'none'; labelEl.style.display = ''; labelEl.textContent = filename; };
-      // Update active thumb
-      document.querySelectorAll('.modal-thumb').forEach(t => {
-        t.classList.toggle('active', t.dataset.src === filename);
-      });
-    }
-
-    // Build thumbnails if there are multiple images
-    thumbsEl.innerHTML = '';
-    if (allImgs.length > 1) {
-      allImgs.forEach(fname => {
-        const t = document.createElement('img');
-        t.className = 'modal-thumb';
-        t.src = 'images/' + fname;
-        t.dataset.src = fname;
-        t.alt = '';
-        t.onerror = () => t.style.display = 'none';
-        t.onclick = (e) => { e.stopPropagation(); setModalImage(fname); };
-        thumbsEl.appendChild(t);
-      });
-    }
-
+    labelEl.style.display = 'none';
     if (allImgs.length > 0) {
-      setModalImage(allImgs[0]);
+      imgEl.style.display = '';
+      buildImgCarousel(imgWrap, imgEl, allImgs)(0);
     } else {
       imgEl.style.display = 'none';
       labelEl.style.display = '';
