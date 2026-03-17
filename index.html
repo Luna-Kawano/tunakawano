@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tuna Kawano — Art Prints, Stickers & Original Work</title>
+  <title>Tuna Kawano</title>
   <meta name="description" content="Original art prints, stickers, and one-of-a-kind work by Tuna Kawano — a self-taught artist from Banff, Canada. Shop prints, stickers, and merch." />
   <meta name="author" content="Tuna Kawano" />
   <link rel="canonical" href="https://tunakawano.com/" />
 
   <!-- Open Graph (controls how your link looks when shared on social / iMessage) -->
-  <meta property="og:title"       content="Tuna Kawano — Art Prints & Stickers" />
+  <meta property="og:title"       content="Tuna Kawano" />
   <meta property="og:description" content="Original art prints, stickers, and one-of-a-kind work by a self-taught artist from Banff, Canada." />
   <meta property="og:type"        content="website" />
   <meta property="og:url"         content="https://tunakawano.com/" />
@@ -45,8 +45,8 @@
   <!-- Favicon -->
   <!-- FAVICON: upload your icon as images/favicon.png to GitHub -->
   <!-- 32×32px or 64×64px PNG works best                        -->
-  <link rel="icon" type="image/png" href="images/favicon.png" />
-  <link rel="apple-touch-icon" href="images/favicon.png" />
+  <link rel="icon" type="image/png" href="images/favicon.svg" />
+  <link rel="apple-touch-icon" href="images/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -499,6 +499,30 @@
     .gallery-modal-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .gallery-modal-img .img-label { position: absolute; }
     .gallery-modal-img img.loaded + .img-label { display: none; }
+
+    .gallery-modal-thumbs {
+      position: absolute;
+      bottom: 8px;
+      left: 0; right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      z-index: 2;
+      padding: 0 8px;
+    }
+
+    .gallery-modal-thumb {
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
+      border: 2px solid transparent;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.15s, border-color 0.15s;
+      background: #e8e8e8;
+    }
+
+    .gallery-modal-thumb.active, .gallery-modal-thumb:hover { opacity: 1; border-color: var(--black); }
 
     .gallery-modal-info { padding: 24px; display: flex; flex-direction: column; gap: 8px; }
     .gallery-modal-title { font-family: 'Courier', monospace; font-weight: 700; font-size: 1rem; }
@@ -957,7 +981,7 @@
       background: transparent;
       color: var(--black);
       border: 1px solid var(--black);
-      padding: 10px 28px;
+      padding: 8px 20px;
       cursor: pointer;
       transition: all 0.15s;
       text-decoration: none;
@@ -998,8 +1022,8 @@
     }
 
     .review-img {
-      width: 48px;
-      height: 48px;
+      width: 80px;
+      height: 80px;
       object-fit: cover;
       border: 1px solid var(--border);
       flex-shrink: 0;
@@ -1067,13 +1091,22 @@
 
     .footer-inner {
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .footer-top {
+      display: flex;
       justify-content: space-between;
       align-items: center;
+      width: 100%;
       flex-wrap: wrap;
       gap: 8px;
     }
 
-    .footer-logo { height: 36px; width: auto; display: block; opacity: 0.35; }
+    .footer-logo { height: 64px; width: auto; display: block; opacity: 0.3; }
 
     /* ---------- RESPONSIVE ---------- */
     @media (max-width: 600px) {
@@ -1107,6 +1140,7 @@
     <div class="gallery-modal-img" id="galleryModalImgBox">
       <img id="galleryModalImg" src="" alt="" />
       <span class="img-label" id="galleryModalImgLabel">[ img ]</span>
+      <div class="gallery-modal-thumbs" id="galleryModalThumbs"></div>
     </div>
     <div class="gallery-modal-info">
       <div class="gallery-modal-medium" id="galleryModalMedium"></div>
@@ -1236,7 +1270,7 @@
 
       <!-- HOME + ABOUT (merged so story expands inline with no gap) -->
       <section id="home">
-        <p class="hero-tagline">I bonked my head + now I'm an artist.</p>
+        <p class="hero-tagline">I bonked my head & now I'm an artist.</p>
         <p class="hero-sub">Prints, stickers, paintings, etc — designed by Tuna.</p>
         <button class="story-btn" id="storyBtn" onclick="toggleStory()">Read my story ↓</button>
       </section>
@@ -1360,8 +1394,10 @@
   <footer>
     <div class="container">
       <div class="footer-inner">
-        <span>© 2026 Tuna Kawano</span>
-        <span style="font-size:11px;color:var(--mid);text-align:center;">made with love in Banff, Canada 🏔️</span>
+        <div class="footer-top">
+          <span>© 2026 Tuna Kawano</span>
+          <span style="font-size:11px;color:var(--mid);">Made with love in Banff, Canada</span>
+        </div>
         <img
           src="images/logo-footer.svg"
           alt="Tuna Kawano"
@@ -1369,7 +1405,6 @@
           onerror="this.style.display='none';"
         />
       </div>
-
     </div>
   </footer>
 </div>
@@ -1565,20 +1600,20 @@
     { id: "sticker-wizard-frog", name: "Wizard Frog Sticker",                tags: ['stickers'],
       bestseller: true, fulfillment: "self",
       desc: "A whimsical frog wizard to brighten your day. 2.8×2.5\" matte vinyl, weatherproof.",
-      price: 500, stock: null, img: "sticker-wizard-frog.jpg", stripePrice: "price_1TBSGPCrD8LBJ3ocgCB9GHSk" },
+      price: 500, stock: null, img: "sticker-wizard-frog-2.jpg", imgs: ["sticker-wizard-frog-1.jpg", "sticker-wizard-frog-2.jpg"], stripePrice: "price_1TBSGPCrD8LBJ3ocgCB9GHSk" },
 
     // ── PRINTS (4th slot on home page) ──────────────────────────
     { id: "print-jack-cat",     name: "Jack Cat Print",                      tags: ['prints'],
       bestseller: false, fulfillment: "self",
       desc: "From an original oil pastel painting. Professional print on 250gsm paper, 6×6\". Ships in rigid mailer.",
-      price: 1200, stock: null, img: "print-jack-cat.jpg", stripePrice: "price_1TBRxSCrD8LBJ3oc4M7teALP" },
+      price: 1200, stock: null, img: "print-jack-cat-2.jpg", imgs: ["print-jack-cat-1.jpg", "print-jack-cat-2.jpg", "print-jack-cat-3.jpg", "print-jack-cat-4.jpg"], stripePrice: "price_1TBRxSCrD8LBJ3oc4M7teALP" },
 
     // ── MERCH (5th + 6th slots on home page) ────────────────────
     {
       id: "sweater-noggin",     name: "Bonked Noggin Club Sweater",           tags: ['merch'],
       bestseller: true, fulfillment: "printful",
       desc: "Let's embrace our cute, silly, bonked-noggin life with this crewneck sweater. For my concussion + TBI community. 50/50 cotton-poly. Gildan 18000. Custom order printed + shipped by Printful ❤️",
-      img: "sweater-noggin.jpg",
+      img: "sweater-noggin-2.jpg", imgs: ["sweater-noggin-1.jpg", "sweater-noggin-2.jpg", "sweater-noggin-3.jpg", "product-sweater-size.jpg"],
       variants: [
         { size: "S",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TAZgYCrD8LBJ3ochvuo9bl5", printfulVariantId: null },
         { size: "M",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TAZgYCrD8LBJ3ochvuo9bl5", printfulVariantId: null },
@@ -1593,7 +1628,7 @@
       id: "sweater-hiking-boots", name: "Life is Better in Hiking Boots Sweater", tags: ['merch'],
       bestseller: true, fulfillment: "printful",
       desc: "A cozy sketch from my sketchbook, now on a crewneck for adventure lovers. 50/50 cotton-poly. Gildan 18000. Custom order printed + shipped by Printful ❤️",
-      img: "sweater-hiking-boots.jpg",
+      img: "sweater-hiking-boots-2.jpg", imgs: ["sweater-hiking-boots-1.jpg", "sweater-hiking-boots-2.jpg", "sweater-hiking-boots-3.jpg", "product-sweater-size.jpg"],
       variants: [
         { size: "S",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TBQOOCrD8LBJ3ocf4835K9n", printfulVariantId: null },
         { size: "M",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TBQOOCrD8LBJ3ocf4835K9n", printfulVariantId: null },
@@ -1607,7 +1642,7 @@
       id: "tshirt-hiking-boots", name: "Life is Better in Hiking Boots T-shirt", tags: ['merch'],
       bestseller: false, fulfillment: "printful",
       desc: "A cozy sketch from my sketchbook, now on a t-shirt for adventure lovers. 100% cotton unisex classic tee Gildan 5000. Custom order printed + shipped by Printful ❤️",
-      img: "tshirt-hiking-boots.jpg",
+      img: "tshirt-hiking-boots-2.jpg", imgs: ["tshirt-hiking-boots-1.jpg", "tshirt-hiking-boots-2.jpg", "tshirt-hiking-boots-3.jpg", "product-shirt-size.jpg"],
       variants: [
         { size: "S",  price: 3500, stock: null, fulfillment: "printful", stripePrice: "price_1TBSLdCrD8LBJ3ocSJq6QQ6C", printfulVariantId: null },
         { size: "M",  price: 3500, stock: null, fulfillment: "printful", stripePrice: "price_1TBSLdCrD8LBJ3ocSJq6QQ6C", printfulVariantId: null },
@@ -1621,7 +1656,7 @@
     { id: "tote-banff-bear",    name: "Banff Bear Tote",                     tags: ['merch', 'banff'],
       bestseller: true, fulfillment: "self",
       desc: "Canvas tote with a one stroke Banff Bear design. 40×35cm.",
-      price: 2600, stock: null, img: "tote-banff-bear.jpg", stripePrice: "price_1TAZFECrD8LBJ3ocrbpFdN8a" },
+      price: 2600, stock: null, img: "tote-banff-bear-2.jpg", imgs: ["tote-banff-bear-1.jpg", "tote-banff-bear-2.jpg"], stripePrice: "price_1TAZFECrD8LBJ3ocrbpFdN8a" },
 
     // ═══════════════════════════════════════════════════════════
     // REST OF STICKERS
@@ -1630,7 +1665,7 @@
     { id: "sticker-cat",        name: "Liquid Cat Sticker",                  tags: ['stickers'],
       bestseller: true, fulfillment: "self",
       desc: "A very liquid cat in a tiny box. 2.5×1.85\" matte vinyl, weatherproof.",
-      price: 500, stock: null, img: "sticker-cat.jpg", stripePrice: "price_1TBSAlCrD8LBJ3ocnodWyOJm" },
+      price: 500, stock: null, img: "sticker-cat-2.jpg", imgs: ["sticker-cat-1.jpg", "sticker-cat-2.jpg"], stripePrice: "price_1TBSAlCrD8LBJ3ocnodWyOJm" },
 
     { id: "sticker-duck",       name: "Duck Mirror Sticker",                 tags: ['stickers'],
       bestseller: true, fulfillment: "self",
@@ -1645,7 +1680,7 @@
     { id: "sticker-girl-goose", name: "Girl & Goose Sticker",                tags: ['stickers'],
       bestseller: false, fulfillment: "self",
       desc: "Pencil-sketched cute vibes for cute-vibes people. 2.5×1.85\" matte vinyl, weatherproof.",
-      price: 500, stock: null, img: "sticker-girl-goose.jpg", stripePrice: "price_1TBS3OCrD8LBJ3ocWoFNzWxO" },
+      price: 500, stock: null, img: "sticker-girl-and-goose-2.jpg", imgs: ["sticker-girl-and-goose-1.jpg", "sticker-girl-and-goose-2.jpg"], stripePrice: "price_1TBS3OCrD8LBJ3ocWoFNzWxO" },
 
     { id: "sticker-housing",    name: "Affordable Housing in Banff Sticker", tags: ['stickers', 'banff'],
       bestseller: true, fulfillment: "self",
@@ -1670,7 +1705,7 @@
     { id: "sticker-nutella",    name: "Nutella Sticker",                     tags: ['stickers'],
       bestseller: false, fulfillment: "self",
       desc: "For Nutella lovers. A little sweetness for your laptop. 2.5×1.85\" matte vinyl, weatherproof.",
-      price: 500, stock: null, img: "sticker-nutella.jpg", stripePrice: "price_1TAZV1CrD8LBJ3ocUA7DrB4J" },
+      price: 500, stock: null, img: "sticker-nutella-2.jpg", imgs: ["sticker-nutella-1.jpg", "sticker-nutella-2.jpg"], stripePrice: "price_1TAZV1CrD8LBJ3ocUA7DrB4J" },
 
     { id: "sticker-goated",     name: "Banff Is Goated Sticker",             tags: ['stickers', 'banff'],
       bestseller: true, fulfillment: "self",
@@ -1690,7 +1725,7 @@
     { id: "sticker-plover",     name: "Plover Fam Sticker",                  tags: ['stickers'],
       bestseller: false, fulfillment: "self",
       desc: "A pencil-sketched plover family. For birb lovers. 3×2.5\" matte vinyl, weatherproof.",
-      price: 500, stock: null, img: "sticker-plover.jpg", stripePrice: "price_1TBSBeCrD8LBJ3ocdudchBGa" },
+      price: 500, stock: null, img: "sticker-plover-2.jpg", imgs: ["sticker-plover-1.jpg", "sticker-plover-2.jpg"], stripePrice: "price_1TBSBeCrD8LBJ3ocdudchBGa" },
 
     { id: "sticker-tv-angel",   name: "TV Angel Sticker",                    tags: ['stickers'],
       bestseller: false, fulfillment: "self",
@@ -1710,7 +1745,7 @@
     { id: "sticker-dog",        name: "Sus Dog Sticker",                     tags: ['stickers'],
       bestseller: false, fulfillment: "self",
       desc: "An Instagram-famous sassy dog, looking for a new home. 2.5×1.85\" matte vinyl, weatherproof.",
-      price: 500, stock: null, img: "sticker-dog.jpg", stripePrice: "price_1TBS4eCrD8LBJ3ocpkJoe0fB" },
+      price: 500, stock: null, img: "sticker-dog-2.jpg", imgs: ["sticker-dog-1.jpg", "sticker-dog-2.jpg"], stripePrice: "price_1TBS4eCrD8LBJ3ocpkJoe0fB" },
 
     { id: "sticker-tuna",       name: "Tuna Sticker",                        tags: ['stickers'],
       bestseller: false, fulfillment: "self",
@@ -1724,13 +1759,13 @@
     { id: "print-laputa",       name: "Laputa Print",                        tags: ['prints'],
       bestseller: true, fulfillment: "self",
       desc: "Inspired by Laputa (aka Castle in the Sky). Professional print on 250gsm paper, 8×10\". Ships in rigid mailer.",
-      price: 1600, stock: null, img: "print-laputa.jpg", stripePrice: "price_1TBQYqCrD8LBJ3ocQXB0sQOt" },
+      price: 1600, stock: null, img: "print-laputa-2.jpg", imgs: ["print-laputa-1.jpg", "print-laputa-2.jpg", "print-laputa-3.jpg", "print-laputa-4.jpg", "print-laputa-5.jpg"], stripePrice: "price_1TBQYqCrD8LBJ3ocQXB0sQOt" },
 
     {
       id: "print-little-friend", name: "Little Friend Fine Art Print",       tags: ['prints', 'banff'],
       bestseller: true, fulfillment: "self",
       desc: "Originally an acrylic painting on a 24×30\" canvas, ft. wildflowers from the Rockies and a cutsie black bear cub. Giclée archival print on 200gsm matte paper.",
-      img: "print-little-friend.jpg",
+      img: "print-little-friend-2.jpg", imgs: ["print-little-friend-1.jpg", "print-little-friend-2.jpg", "print-little-friend-3.jpg", "print-little-friend-4.jpg", "print-little-friend-5.jpg"],
       variants: [
         { size: "8x10",  price: 3000, stock: null, fulfillment: "self", stripePrice: "price_1TBQSzCrD8LBJ3ocV00H7jcG", printfulVariantId: null },
         { size: "11x14", price: 4500, stock: null, fulfillment: "self", stripePrice: "price_1TBQSmCrD8LBJ3ocMckLAAHg", printfulVariantId: null },
@@ -1741,22 +1776,22 @@
     { id: "print-fabio-cat",    name: "Fabio Cat Print",                     tags: ['prints'],
       bestseller: false, fulfillment: "self",
       desc: "From an original acrylic painting. Professional print on 250gsm paper, 6×6\". Ships in rigid mailer.",
-      price: 1200, stock: null, img: "print-fabio-cat.jpg", stripePrice: "price_1TBRysCrD8LBJ3ocKXpwgz3Q" },
+      price: 1200, stock: null, img: "print-fabio-cat-2.jpg", imgs: ["print-fabio-cat-1.jpg", "print-fabio-cat-2.jpg", "print-fabio-cat-3.jpg", "print-fabio-cat-4.jpg"], stripePrice: "price_1TBRysCrD8LBJ3ocKXpwgz3Q" },
 
     { id: "print-nikki-dog",    name: "Nikki Dog Print",                     tags: ['prints'],
       bestseller: false, fulfillment: "self",
       desc: "From an original acrylic painting. Professional print on 250gsm paper, 6×6\". Ships in rigid mailer.",
-      price: 1200, stock: null, img: "print-nikki-dog.jpg", stripePrice: "price_1TBRvsCrD8LBJ3ocTwKj6NA1" },
+      price: 1200, stock: null, img: "print-nikki-dog-2.jpg", imgs: ["print-nikki-dog-1.jpg", "print-nikki-dog-2.jpg", "print-nikki-dog-3.jpg"], stripePrice: "price_1TBRvsCrD8LBJ3ocTwKj6NA1" },
 
     { id: "print-life-is-better", name: "Life is Better in Hiking Boots Print", tags: ['prints'],
       bestseller: false, fulfillment: "self",
       desc: "A cozy sketch from my sketchbook, now a print for adventure lovers. Professional print on 250gsm paper, 8×10\". Ships in rigid mailer.",
-      price: 1600, stock: null, img: "print-life-is-better.jpg", stripePrice: "price_1TBQKjCrD8LBJ3oci5farutr" },
+      price: 1600, stock: null, img: "print-life-is-better-2.jpg", imgs: ["print-life-is-better-1.jpg", "print-life-is-better-2.jpg", "print-life-is-better-3.jpg"], stripePrice: "price_1TBQKjCrD8LBJ3oci5farutr" },
 
     { id: "print-affordable-housing", name: "Affordable Housing in Banff Print", tags: ['prints', 'banff'],
       bestseller: false, fulfillment: "self",
       desc: "If you\'ve lived in Banff, you get it. Manifesting a shoe house. Professional print on 250gsm paper, 8×10\". Ships in rigid mailer.",
-      price: 1600, stock: null, img: "print-affordable-housing.jpg", stripePrice: "price_1TBQUlCrD8LBJ3oc5GQzLfEX" },
+      price: 1600, stock: null, img: "print-affordable-housing-2.jpg", imgs: ["print-affordable-housing-1.jpg", "print-affordable-housing-2.jpg", "print-affordable-housing-3.jpg"], stripePrice: "price_1TBQUlCrD8LBJ3oc5GQzLfEX" },
 
     // ═══════════════════════════════════════════════════════════
     // MERCH
@@ -1766,7 +1801,7 @@
       id: "sweater-noggin",     name: "Bonked Noggin Club Sweater",           tags: ['merch'],
       bestseller: true, fulfillment: "printful",
       desc: "Let\'s embrace our cute, silly, bonked-noggin life with this crewneck sweater. For my concussion + TBI community. 50/50 cotton-poly. Gildan 18000. Custom order printed + shipped by Printful ❤️",
-      img: "sweater-noggin.jpg",
+      img: "sweater-noggin-2.jpg", imgs: ["sweater-noggin-1.jpg", "sweater-noggin-2.jpg", "sweater-noggin-3.jpg", "product-sweater-size.jpg"],
       variants: [
         { size: "S",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TAZgYCrD8LBJ3ochvuo9bl5", printfulVariantId: null },
         { size: "M",  price: 5400, stock: null, fulfillment: "printful", stripePrice: "price_1TAZgYCrD8LBJ3ochvuo9bl5", printfulVariantId: null },
@@ -1781,7 +1816,7 @@
       id: "tshirt-hiking-boots", name: "Life is Better in Hiking Boots T-shirt", tags: ['merch'],
       bestseller: false, fulfillment: "printful",
       desc: "A cozy sketch from my sketchbook, now on a t-shirt for adventure lovers. 100% cotton unisex classic tee Gildan 5000. Custom order printed + shipped by Printful ❤️",
-      img: "tshirt-hiking-boots.jpg",
+      img: "tshirt-hiking-boots-2.jpg", imgs: ["tshirt-hiking-boots-1.jpg", "tshirt-hiking-boots-2.jpg", "tshirt-hiking-boots-3.jpg", "product-shirt-size.jpg"],
       variants: [
         { size: "S",  price: 3500, stock: null, fulfillment: "printful", stripePrice: "price_1TBSLdCrD8LBJ3ocSJq6QQ6C", printfulVariantId: null },
         { size: "M",  price: 3500, stock: null, fulfillment: "printful", stripePrice: "price_1TBSLdCrD8LBJ3ocSJq6QQ6C", printfulVariantId: null },
@@ -1799,7 +1834,7 @@
     { id: "original-fish",      name: "Fish Painting",                       tags: ['originals'],
       bestseller: false, fulfillment: "self",
       desc: "One-of-a-kind original acrylic painting. Signed and ready to hang.",
-      price: 4500, stock: 1, img: "original-fish.jpg", stripePrice: "price_PLACEHOLDER" },
+      price: 4500, stock: 0, img: "original-fish.jpg", stripePrice: "price_PLACEHOLDER" },
 
     { id: "original-commission", name: "Commission a Painting",              tags: ['originals'],
       bestseller: false, fulfillment: "self",
@@ -2110,20 +2145,62 @@
   // GALLERY MODAL
   // ============================================================
   function openGalleryModal(index) {
-    const item = GALLERY[index];
+    const item = GALLERY_FULL[index] || GALLERY[index];
     if (!item) return;
     document.getElementById('galleryModalTitle').textContent  = item.title;
     document.getElementById('galleryModalMedium').textContent = item.medium;
     document.getElementById('galleryModalDesc').textContent   = item.desc;
 
-    const imgEl   = document.getElementById('galleryModalImg');
-    const labelEl = document.getElementById('galleryModalImgLabel');
-    imgEl.classList.remove('loaded');
-    imgEl.style.display = '';
-    labelEl.style.display = '';
-    imgEl.src = 'images/' + item.img;
-    imgEl.onload  = () => { imgEl.classList.add('loaded'); labelEl.style.display = 'none'; };
-    imgEl.onerror = () => { imgEl.style.display = 'none'; labelEl.textContent = item.img; };
+    const imgEl    = document.getElementById('galleryModalImg');
+    const labelEl  = document.getElementById('galleryModalImgLabel');
+    const thumbsEl = document.getElementById('galleryModalThumbs');
+
+    // Detect paired images: if filename ends in -1.jpg or -2.jpg, build a pair
+    function setGalleryImg(src) {
+      imgEl.classList.remove('loaded');
+      imgEl.style.display = '';
+      labelEl.style.display = 'none';
+      imgEl.src = 'images/' + src;
+      imgEl.onload  = () => imgEl.classList.add('loaded');
+      imgEl.onerror = () => { imgEl.style.display = 'none'; labelEl.style.display = ''; labelEl.textContent = src; };
+      document.querySelectorAll('.gallery-modal-thumb').forEach(t => {
+        t.classList.toggle('active', t.dataset.src === src);
+      });
+    }
+
+    const match = item.img.match(/^(.+)-(\d+)(\.jpg)$/i);
+    thumbsEl.innerHTML = '';
+    if (match) {
+      // Find all numbered siblings by checking GALLERY_FULL for same base
+      const base = match[1];
+      const ext  = match[3];
+      // Collect all imgs with same base across both arrays
+      const allImgs = [];
+      const seen = new Set();
+      [...GALLERY_FULL, ...GALLERY].forEach(g => {
+        const m = g.img.match(/^(.+)-(\d+)(\.jpg)$/i);
+        if (m && m[1] === base && !seen.has(g.img)) { seen.add(g.img); allImgs.push(g.img); }
+      });
+      allImgs.sort();
+      if (allImgs.length > 1) {
+        allImgs.forEach(fname => {
+          const t = document.createElement('img');
+          t.className = 'gallery-modal-thumb';
+          t.src = 'images/' + fname;
+          t.dataset.src = fname;
+          t.alt = '';
+          t.onerror = () => t.style.display = 'none';
+          t.onclick = (e) => { e.stopPropagation(); setGalleryImg(fname); };
+          thumbsEl.appendChild(t);
+        });
+        // Start on -2 (index 1) as the primary
+        setGalleryImg(allImgs[Math.min(1, allImgs.length - 1)]);
+      } else {
+        setGalleryImg(item.img);
+      }
+    } else {
+      setGalleryImg(item.img);
+    }
 
     document.getElementById('galleryModalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
